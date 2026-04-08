@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIVALCE — Costo Financiero Inventario</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0e1a;--s1:#111827;--s2:#1a2235;--bd:#2a3450;--tx:#e8ecf4;--t2:#8899b4;--ac:#4f8cff;--gn:#00d4aa;--rd:#ff4d6a;--or:#ffb84d;--pu:#a78bfa}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
+.header{background:linear-gradient(135deg,#0d1117,#1a2235);border-bottom:1px solid var(--bd);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.header h1{font-size:18px;font-weight:700}.header h1 span{color:var(--gn)}
+.btn-sm{padding:6px 14px;border-radius:6px;border:1px solid var(--bd);background:var(--s2);color:var(--tx);font-family:"DM Sans";font-size:12px;cursor:pointer}
+.btn-sm:hover{border-color:var(--ac);color:var(--ac)}
+.kpi-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:12px 24px;background:var(--s1);border-bottom:1px solid var(--bd)}
+.kpi{text-align:center}.kpi .lb{font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:1px}.kpi .vl{font-family:"JetBrains Mono";font-size:16px;font-weight:600;margin-top:2px}
+.main{display:grid;grid-template-columns:1fr 300px;min-height:calc(100vh - 130px)}
+.tbl-section{padding:16px;overflow:auto}
+.sidebar{background:var(--s1);border-left:1px solid var(--bd);padding:16px;overflow-y:auto}
+.sidebar h3{font-size:13px;margin-bottom:12px;color:var(--or)}
+.card{background:var(--s2);border-radius:8px;padding:14px;margin-bottom:10px;border:1px solid var(--bd)}
+.card h4{font-size:11px;color:var(--t2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.sr{display:flex;justify-content:space-between;padding:3px 0;font-size:12px}.sr .lb{color:var(--t2)}.sr .vl{font-family:"JetBrains Mono";font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:var(--s2);color:var(--t2);font-weight:600;padding:8px;text-align:left;position:sticky;top:0;z-index:2;border-bottom:2px solid var(--bd);font-size:10px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+tbody td{padding:5px 8px;border-bottom:1px solid rgba(42,52,80,.4);vertical-align:middle}
+tbody tr:hover{background:rgba(79,140,255,.04)}
+.mono{font-family:"JetBrains Mono";font-size:11px}
+input[type=range]{width:70px;height:4px;-webkit-appearance:none;background:var(--bd);border-radius:2px;outline:none;cursor:pointer;vertical-align:middle}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;background:var(--ac);border-radius:50%;cursor:pointer}
+.pv{font-family:"JetBrains Mono";font-size:10px;color:var(--ac);min-width:28px;display:inline-block;text-align:right}
+.gc{padding:12px 24px;background:var(--s2);border-bottom:1px solid var(--bd);display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.gc label{font-size:12px;color:var(--t2)}
+.gc input[type=number]{width:80px;background:var(--s1);border:1px solid var(--bd);color:var(--ac);padding:4px 8px;border-radius:4px;font-family:"JetBrains Mono";font-size:12px;text-align:right}
+</style>
+</head>
+<body>
+<div class="header"><div><h1>Costo Financiero <span>Inventario</span> — VIVALCE</h1><div style="color:var(--t2);font-size:11px;margin-top:2px">Calculo de costo financiero por producto basado en stock standard</div></div><div style="display:flex;gap:8px"><button class="btn-sm" onclick="exportCSV()">Export CSV</button><button class="btn-sm" onclick="location.reload()">Recargar</button></div></div>
+<div class="gc"><div style="display:flex;align-items:center;gap:8px"><label>TNA Referencia:</label><input type="range" min="5" max="80" value="35" id="gTNA" oninput="updateG()" style="width:120px"><span class="mono" id="gTNAv" style="color:var(--or)">35.0%</span></div><div style="display:flex;align-items:center;gap:8px"><label>TC USD/ARS:</label><input type="number" value="1490" id="gTC" onchange="updateG()"></div><div style="display:flex;align-items:center;gap:8px"><label>Vol Mensual (kg):</label><input type="number" value="17500" id="gVol" onchange="updateG()"></div></div>
+<div class="kpi-bar" id="kpis"></div>
+<div class="main"><div class="tbl-section"><div id="tbl" style="max-height:calc(100vh - 260px);overflow-y:auto"></div></div><div class="sidebar" id="sb"></div></div>
+<script>
+var INV = [{"producto": "ASACLEAN C - Bolsas 25kg", "origen": "USA", "vol_anual": 408.24, "lead_time": 70, "stock_seg": 35, "ddp": -64.2922}, {"producto": "CB-7855 G/3 - Compresion", "origen": "USA", "vol_anual": 0, "lead_time": 70, "stock_seg": 60, "ddp": -16.22288888888889}, {"producto": "CB-7992", "origen": "USA", "vol_anual": 0, "lead_time": 70, "stock_seg": 60, "ddp": -14.6006}, {"producto": "DYMALINK 633", "origen": "USA", "vol_anual": 600.0, "lead_time": 82, "stock_seg": 60, "ddp": -16.8144}, {"producto": "DYMALINK 634", "origen": "USA", "vol_anual": 180.0, "lead_time": 82, "stock_seg": 60, "ddp": -18.682666666666666}, {"producto": "KW-400 Balde", "origen": "USA", "vol_anual": 2500.0, "lead_time": 57, "stock_seg": 45, "ddp": -2.688}, {"producto": "N-2611", "origen": "BR", "vol_anual": 1400.0, "lead_time": 57, "stock_seg": 45, "ddp": -2.688}, {"producto": "N-612 B", "origen": "BR", "vol_anual": 10000.0, "lead_time": 57, "stock_seg": 45, "ddp": -2.5378}, {"producto": "N-615 B", "origen": "BR", "vol_anual": 500.0, "lead_time": 57, "stock_seg": 45, "ddp": -5.5354}, {"producto": "NP-2021", "origen": "BR", "vol_anual": 7500.0, "lead_time": 57, "stock_seg": 45, "ddp": -2.82}, {"producto": "NP-3183 NV", "origen": "BR", "vol_anual": 2000.0, "lead_time": 57, "stock_seg": 45, "ddp": -3.55}, {"producto": "NTL-218", "origen": "BR", "vol_anual": 9000.0, "lead_time": 57, "stock_seg": 45, "ddp": -3.1878}, {"producto": "Permalease 10 Liquido", "origen": "EU", "vol_anual": 160.0, "lead_time": 60, "stock_seg": 30, "ddp": -3.47}, {"producto": "Polyglas H200 20 MM", "origen": "EU", "vol_anual": 1430.0, "lead_time": 70, "stock_seg": 60, "ddp": -2.8321}, {"producto": "SCA-98 Liq. x 20kg", "origen": "BR", "vol_anual": 1420.0, "lead_time": 36, "stock_seg": 20, "ddp": -3.04}, {"producto": "R 11", "origen": "BR", "vol_anual": 12800.0, "lead_time": 36, "stock_seg": 20, "ddp": -2.6364}, {"producto": "SP-103", "origen": "USA", "vol_anual": 20300.0, "lead_time": 72, "stock_seg": 60, "ddp": -2.5904}, {"producto": "SP-1068", "origen": "BR", "vol_anual": 1925.0, "lead_time": 36, "stock_seg": 20, "ddp": -3.2696}, {"producto": "SP-134", "origen": "BR", "vol_anual": 120.0, "lead_time": 36, "stock_seg": 20, "ddp": -5.24}, {"producto": "SR 350", "origen": "USA", "vol_anual": 1000.0, "lead_time": 62, "stock_seg": 40, "ddp": -4.57}, {"producto": "Unilene A-80", "origen": "BR", "vol_anual": 2400.0, "lead_time": 36, "stock_seg": 20, "ddp": -3.62}];
+
+var S = [];
+for(var i=0;i<INV.length;i++){
+  S.push({p:INV[i].producto,o:INV[i].origen,v:INV[i].vol_anual,lt:INV[i].lead_time,ss:INV[i].stock_seg,d:INV[i].ddp});
+}
+
+function gTNA(){return parseFloat(document.getElementById("gTNA").value)/100}
+function gTC(){return parseFloat(document.getElementById("gTC").value)||1490}
+function gVol(){return parseFloat(document.getElementById("gVol").value)||17500}
+
+function ci(s){
+  var sd=s.lt+s.ss;
+  var sk=s.v>0?(s.v/365)*sd:0;
+  var su=sk*Math.abs(s.d);
+  var t=gTNA();
+  var cfd=s.v>0?(su*t)/(s.v*365):0;
+  var cfs=cfd*sd;
+  var cfp=Math.abs(s.d)>0?cfs/Math.abs(s.d):0;
+  var cfa=cfs*s.v;
+  return {sd:sd,sk:sk,su:su,cfd:cfd,cfs:cfs,cfp:cfp,cfa:cfa};
+}
+
+function fmt(n){return Math.abs(n).toLocaleString("es-AR",{maximumFractionDigits:0})}
+function fd(n){return n.toFixed(2)}
+function fd4(n){return n.toFixed(4)}
+
+function updateG(){
+  document.getElementById("gTNAv").textContent=(gTNA()*100).toFixed(1)+"%";
+  renderAll();
+}
+
+function ui(idx,f,val){
+  S[idx][f]=parseInt(val);
+  renderAll();
+}
+
+function uv(idx,val){
+  S[idx].v=parseFloat(val)||0;
+  renderAll();
+}
+
+function renderAll(){renderKPIs();renderTable();renderSB();}
+
+function renderKPIs(){
+  var tsu=0,tcf=0,tv=0,nc=0;
+  for(var i=0;i<S.length;i++){var c=ci(S[i]);tsu+=c.su;tcf+=c.cfa;tv+=S[i].v;if(c.sk>0)nc++;}
+  var cpk=tv>0?tcf/tv:0;
+  var cma=(tcf/12)*gTC();
+  var h="";
+  h+='<div class="kpi"><div class="lb">Stock Inmovilizado</div><div class="vl" style="color:var(--or)">USD '+fmt(tsu)+'</div></div>';
+  h+='<div class="kpi"><div class="lb">CF Anual</div><div class="vl" style="color:var(--rd)">USD '+fmt(tcf)+'</div></div>';
+  h+='<div class="kpi"><div class="lb">CF Promedio USD/kg</div><div class="vl" style="color:var(--rd)">USD '+fd(cpk)+'</div></div>';
+  h+='<div class="kpi"><div class="lb">CF Mensual ARS</div><div class="vl" style="color:var(--rd)">ARS '+fmt(cma)+'</div></div>';
+  h+='<div class="kpi"><div class="lb">Con Stock</div><div class="vl">'+nc+' / '+S.length+'</div></div>';
+  document.getElementById("kpis").innerHTML=h;
+}
+
+function renderTable(){
+  var h='<table><thead><tr><th>Producto</th><th>Origen</th><th style="text-align:right">Vol Anual</th><th>Lead Time</th><th>Stock Seg</th><th>Std (dias)</th><th style="text-align:right">Stock kg</th><th style="text-align:right">DDP</th><th style="text-align:right">Stock USD</th><th style="text-align:right">CF/kg</th><th>%DDP</th><th style="text-align:right">CF Anual</th></tr></thead><tbody>';
+  for(var i=0;i<S.length;i++){
+    var s=S[i];var c=ci(s);
+    var cc=c.cfs>1?"var(--rd)":c.cfs>0.5?"var(--or)":"var(--gn)";
+    h+="<tr>";
+    h+='<td style="font-weight:500">'+s.p+'</td>';
+    h+='<td style="font-size:10px;color:var(--t2)">'+s.o+'</td>';
+    h+='<td><input type="number" value="'+s.v+'" onchange="uv('+i+',this.value)" style="width:70px;background:var(--s1);border:1px solid var(--bd);color:var(--ac);padding:2px 6px;border-radius:4px;font-family:JetBrains Mono;font-size:11px;text-align:right"></td>';
+    h+='<td><input type="range" min="0" max="120" value="'+s.lt+'" oninput="ui('+i+',\'lt\',this.value)"><span class="pv">'+s.lt+'d</span></td>';
+    h+='<td><input type="range" min="0" max="90" value="'+s.ss+'" oninput="ui('+i+',\'ss\',this.value)"><span class="pv">'+s.ss+'d</span></td>';
+    h+='<td class="mono" style="text-align:center">'+c.sd+'</td>';
+    h+='<td class="mono" style="text-align:right">'+fmt(c.sk)+'</td>';
+    h+='<td class="mono" style="text-align:right">'+fd(Math.abs(s.d))+'</td>';
+    h+='<td class="mono" style="text-align:right;color:var(--or)">'+fmt(c.su)+'</td>';
+    h+='<td class="mono" style="text-align:right;color:'+cc+'">'+fd(c.cfs)+'</td>';
+    h+='<td class="mono" style="color:'+cc+'">'+(c.cfp*100).toFixed(1)+'%</td>';
+    h+='<td class="mono" style="text-align:right;color:var(--rd)">'+fmt(c.cfa)+'</td>';
+    h+="</tr>";
+  }
+  h+="</tbody></table>";
+  document.getElementById("tbl").innerHTML=h;
+}
+
+function renderSB(){
+  var bo={};var top=[];
+  for(var i=0;i<S.length;i++){var s=S[i];var c=ci(s);var o=s.o||"N/A";if(!bo[o])bo[o]={su:0,cf:0,n:0};bo[o].su+=c.su;bo[o].cf+=c.cfa;bo[o].n++;if(c.cfa>0)top.push({p:s.p,cf:c.cfa,ck:c.cfs});}
+  top.sort(function(a,b){return b.cf-a.cf});
+  var h='<h3>Resumen</h3>';
+  h+='<div class="card"><h4>Por Origen</h4>';
+  var ks=Object.keys(bo).sort(function(a,b){return bo[b].su-bo[a].su});
+  for(var i=0;i<ks.length;i++){var k=ks[i];var d=bo[k];h+='<div class="sr"><span class="lb">'+k+' ('+d.n+')</span><span class="vl" style="color:var(--or)">USD '+fmt(d.su)+'</span></div>';}
+  h+='</div>';
+  h+='<div class="card"><h4>Top Costo Financiero</h4>';
+  for(var i=0;i<Math.min(top.length,8);i++){var p=top[i];h+='<div class="sr"><span class="lb" style="font-size:11px">'+p.p.substring(0,22)+'</span><span class="vl" style="color:var(--rd);font-size:11px">'+fmt(p.cf)+' ('+fd(p.ck)+'/kg)</span></div>';}
+  h+='</div>';
+  h+='<div class="card"><h4>Formulas</h4><div style="font-size:10px;color:var(--t2);line-height:1.6">Stock Std = LT + SS<br>Stock kg = (Vol/365) x Std<br>Stock USD = kg x |DDP|<br>CF Diario = (Stock USD x TNA) / (Vol x 365)<br>CF/kg = Diario x Std dias<br>CF Anual = CF/kg x Vol</div></div>';
+  h+='<button class="btn-sm" style="width:100%;margin-top:12px;padding:10px;background:var(--ac);color:#fff;border:none;font-weight:600" onclick="exportCSV()">Export CSV</button>';
+  document.getElementById("sb").innerHTML=h;
+}
+
+function exportCSV(){
+  var csv="Producto,Origen,Vol Anual,Lead Time,Stock Seg,Std Dias,Stock Kg,DDP,Stock USD,TNA,CF/kg,% DDP,CF Anual\n";
+  for(var i=0;i<S.length;i++){var s=S[i];var c=ci(s);csv+='"'+s.p+'","'+s.o+'",'+s.v+','+s.lt+','+s.ss+','+c.sd+','+c.sk.toFixed(1)+','+Math.abs(s.d).toFixed(2)+','+c.su.toFixed(0)+','+(gTNA()*100).toFixed(1)+','+c.cfs.toFixed(4)+','+(c.cfp*100).toFixed(1)+','+c.cfa.toFixed(0)+"\n";}
+  var b=new Blob([csv],{type:"text/csv"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="inventario_cf_"+new Date().toISOString().slice(0,10)+".csv";a.click();
+}
+
+renderAll();
+</script>
+</body>
+</html>
