@@ -3,418 +3,150 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VIVALCE — Dashboard P&L por Producto</title>
+<title>VIVALCE — Costo Financiero Inventario</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0a0e1a;--s1:#111827;--s2:#1a2235;--bd:#2a3450;--tx:#e8ecf4;--t2:#8899b4;--ac:#4f8cff;--gn:#00d4aa;--rd:#ff4d6a;--or:#ffb84d;--pu:#a78bfa}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx)}
-.header{background:linear-gradient(135deg,#0d1117,#1a2235);border-bottom:1px solid var(--bd);padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
-.header h1{font-size:20px;font-weight:700}.header h1 span{color:var(--ac)}
-.header .sub{color:var(--t2);font-size:12px;margin-top:2px}
-.tabs{display:flex;gap:0;background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px}
-.tab{padding:12px 20px;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
-.tab:hover{color:var(--tx)}.tab.active{color:var(--ac);border-bottom-color:var(--ac)}
-.content{padding:24px;max-width:1400px;margin:0 auto}
-.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
-.kpi{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:16px;text-align:center}
-.kpi .lb{font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:1px}
-.kpi .vl{font-family:'JetBrains Mono';font-size:22px;font-weight:600;margin-top:6px}
-.kpi .delta{font-size:11px;margin-top:4px}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-.card{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:16px}
-.card h3{font-size:13px;color:var(--or);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px}
-.card.full{grid-column:1/-1}
+body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
+.header{background:linear-gradient(135deg,#0d1117,#1a2235);border-bottom:1px solid var(--bd);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.header h1{font-size:18px;font-weight:700}.header h1 span{color:var(--gn)}
+.btn-sm{padding:6px 14px;border-radius:6px;border:1px solid var(--bd);background:var(--s2);color:var(--tx);font-family:"DM Sans";font-size:12px;cursor:pointer}
+.btn-sm:hover{border-color:var(--ac);color:var(--ac)}
+.kpi-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:12px 24px;background:var(--s1);border-bottom:1px solid var(--bd)}
+.kpi{text-align:center}.kpi .lb{font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:1px}.kpi .vl{font-family:"JetBrains Mono";font-size:16px;font-weight:600;margin-top:2px}
+.main{display:grid;grid-template-columns:1fr 300px;min-height:calc(100vh - 130px)}
+.tbl-section{padding:16px;overflow:auto}
+.sidebar{background:var(--s1);border-left:1px solid var(--bd);padding:16px;overflow-y:auto}
+.sidebar h3{font-size:13px;margin-bottom:12px;color:var(--or)}
+.card{background:var(--s2);border-radius:8px;padding:14px;margin-bottom:10px;border:1px solid var(--bd)}
+.card h4{font-size:11px;color:var(--t2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.sr{display:flex;justify-content:space-between;padding:3px 0;font-size:12px}.sr .lb{color:var(--t2)}.sr .vl{font-family:"JetBrains Mono";font-weight:600}
 table{width:100%;border-collapse:collapse;font-size:12px}
-th{background:var(--s1);color:var(--t2);padding:8px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.5px;position:sticky;top:0;z-index:1}
-td{padding:6px 8px;border-bottom:1px solid rgba(42,52,80,.4)}
-tr:hover{background:rgba(79,140,255,.03)}
-.mono{font-family:'JetBrains Mono';font-size:11px}
-.neg{color:var(--rd)}.pos{color:var(--gn)}.warn{color:var(--or)}
-.tag{display:inline-block;padding:2px 6px;border-radius:3px;font-size:9px;font-weight:600}
-.tag-ok{background:rgba(0,212,170,.15);color:var(--gn)}
-.tag-bad{background:rgba(255,77,106,.15);color:var(--rd)}
-.tag-warn{background:rgba(255,184,77,.15);color:var(--or)}
-.hidden{display:none}
-.sr{display:flex;justify-content:space-between;padding:3px 0;font-size:12px}
-.sr .lb{color:var(--t2)}.sr .vl{font-family:'JetBrains Mono';font-weight:600}
-@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.row{grid-template-columns:1fr}}
+thead th{background:var(--s2);color:var(--t2);font-weight:600;padding:8px;text-align:left;position:sticky;top:0;z-index:2;border-bottom:2px solid var(--bd);font-size:10px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+tbody td{padding:5px 8px;border-bottom:1px solid rgba(42,52,80,.4);vertical-align:middle}
+tbody tr:hover{background:rgba(79,140,255,.04)}
+.mono{font-family:"JetBrains Mono";font-size:11px}
+input[type=range]{width:70px;height:4px;-webkit-appearance:none;background:var(--bd);border-radius:2px;outline:none;cursor:pointer;vertical-align:middle}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;background:var(--ac);border-radius:50%;cursor:pointer}
+.pv{font-family:"JetBrains Mono";font-size:10px;color:var(--ac);min-width:28px;display:inline-block;text-align:right}
+.gc{padding:12px 24px;background:var(--s2);border-bottom:1px solid var(--bd);display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.gc label{font-size:12px;color:var(--t2)}
+.gc input[type=number]{width:80px;background:var(--s1);border:1px solid var(--bd);color:var(--ac);padding:4px 8px;border-radius:4px;font-family:"JetBrains Mono";font-size:12px;text-align:right}
 </style>
 </head>
 <body>
-<div class="header">
-  <div><h1><span>VIVALCE</span> — P&L por Producto</h1><div class="sub">Dashboard de Perdidas & Ganancias | Datos anualizados en USD</div></div>
-  <div style="text-align:right"><div style="font-size:10px;color:var(--t2)">Volumen Mensual</div><div style="font-family:'JetBrains Mono';font-size:14px">17,500 kg | TC 1,490</div></div>
-</div>
-<div class="tabs" id="tabs"></div>
-<div class="content" id="content"></div>
-
+<div class="header"><div><h1>Costo Financiero <span>Inventario</span> — VIVALCE</h1><div style="color:var(--t2);font-size:11px;margin-top:2px">Calculo de costo financiero por producto basado en stock standard</div></div><div style="display:flex;gap:8px"><button class="btn-sm" onclick="exportCSV()">Export CSV</button><button class="btn-sm" onclick="location.reload()">Recargar</button></div></div>
+<div class="gc"><div style="display:flex;align-items:center;gap:8px"><label>TNA Referencia:</label><input type="range" min="5" max="80" value="35" id="gTNA" oninput="updateG()" style="width:120px"><span class="mono" id="gTNAv" style="color:var(--or)">35.0%</span></div><div style="display:flex;align-items:center;gap:8px"><label>TC USD/ARS:</label><input type="number" value="1490" id="gTC" onchange="updateG()"></div><div style="display:flex;align-items:center;gap:8px"><label>Vol Mensual (kg):</label><input type="number" value="17500" id="gVol" onchange="updateG()"></div></div>
+<div class="kpi-bar" id="kpis"></div>
+<div class="main"><div class="tbl-section"><div id="tbl" style="max-height:calc(100vh - 260px);overflow-y:auto"></div></div><div class="sidebar" id="sb"></div></div>
 <script>
-var D = {"products": [{"proveedor": "ALTIMA GROUP", "producto": "DYMALINK 633", "precio": 95.68, "ddp": -64.29, "vol": 408.0, "cmg": 26.4, "cmg_pct": 0.276, "ebitda": 24.22, "ebitda_pct": 0.2532, "revenue": 39060.0, "ebitda_abs": 9889.0, "cmg_abs": 10779.0, "gastos_fin": -0.1654, "cf_inventario": -1.8622, "result_neto": 22.1967}, {"proveedor": "ARKEMA", "producto": "SR 206 - Lata 20kg", "precio": 26.89, "ddp": -16.22, "vol": 0, "cmg": 8.92, "cmg_pct": 0.3316, "ebitda": 6.74, "ebitda_pct": 0.2505, "revenue": 0.0, "ebitda_abs": 0.0, "cmg_abs": 0.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": 0}, {"proveedor": "ARKEMA", "producto": "SR 206 - Tambor", "precio": 24.2, "ddp": -14.6, "vol": 0, "cmg": 7.97, "cmg_pct": 0.3295, "ebitda": 5.8, "ebitda_pct": 0.2395, "revenue": 0.0, "ebitda_abs": 0.0, "cmg_abs": 0.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": 0}, {"proveedor": "ARKEMA", "producto": "SR 350 - Tambor", "precio": 25.55, "ddp": -16.81, "vol": 600.0, "cmg": 7.05, "cmg_pct": 0.2758, "ebitda": 4.87, "ebitda_pct": 0.1905, "revenue": 15330.0, "ebitda_abs": 2921.0, "cmg_abs": 4228.0, "gastos_fin": -0.1654, "cf_inventario": -0.8907, "result_neto": 3.812}, {"proveedor": "ARKEMA", "producto": "SR 350 - Lata 20kg", "precio": 28.38, "ddp": -18.68, "vol": 180.0, "cmg": 7.88, "cmg_pct": 0.2775, "ebitda": 5.7, "ebitda_pct": 0.2007, "revenue": 5108.0, "ebitda_abs": 1025.0, "cmg_abs": 1418.0, "gastos_fin": -0.1654, "cf_inventario": -0.9897, "result_neto": 4.5418}, {"proveedor": "ASK CRIOS PROD QUIM DO BRASIL", "producto": "CB-7855 G/3 - Compresion", "precio": 3.9, "ddp": -2.69, "vol": 2500.0, "cmg": 0.54, "cmg_pct": 0.1387, "ebitda": -1.64, "ebitda_pct": -0.42, "revenue": 9750.0, "ebitda_abs": -4095.0, "cmg_abs": 1352.0, "gastos_fin": -0.1654, "cf_inventario": -0.0735, "result_neto": -1.8768}, {"proveedor": "ASK CRIOS PROD QUIM DO BRASIL", "producto": "CB-7855 G - Inyección", "precio": 3.9, "ddp": -2.69, "vol": 1400.0, "cmg": 0.54, "cmg_pct": 0.1387, "ebitda": -1.64, "ebitda_pct": -0.42, "revenue": 5460.0, "ebitda_abs": -2293.0, "cmg_abs": 757.0, "gastos_fin": -0.1654, "cf_inventario": -0.0735, "result_neto": -1.8768}, {"proveedor": "ASK CRIOS PROD QUIM DO BRASIL", "producto": "CB-7992", "precio": 3.45, "ddp": -2.54, "vol": 10000.0, "cmg": 0.26, "cmg_pct": 0.076, "ebitda": -1.92, "ebitda_pct": -0.5555, "revenue": 34500.0, "ebitda_abs": -19165.0, "cmg_abs": 2622.0, "gastos_fin": -0.1654, "cf_inventario": -0.0694, "result_neto": -2.1513}, {"proveedor": "ASK CRIOS PROD QUIM DO BRASIL", "producto": "P-028B", "precio": 8.02, "ddp": -5.54, "vol": 500.0, "cmg": 1.62, "cmg_pct": 0.202, "ebitda": -0.56, "ebitda_pct": -0.0697, "revenue": 4010.0, "ebitda_abs": -279.0, "cmg_abs": 810.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -0.523}, {"proveedor": "BRASKEM", "producto": "Unilene A-80", "precio": 3.0, "ddp": -2.82, "vol": 7500.0, "cmg": -0.45, "cmg_pct": -0.1496, "ebitda": -2.63, "ebitda_pct": -0.8759, "revenue": 22500.0, "ebitda_abs": -19707.0, "cmg_abs": -3367.0, "gastos_fin": -0.1654, "cf_inventario": -0.1513, "result_neto": -2.9443}, {"proveedor": "NITRIFLEX", "producto": "N-206", "precio": 5.62, "ddp": -3.55, "vol": 2000.0, "cmg": 1.32, "cmg_pct": 0.2345, "ebitda": -0.86, "ebitda_pct": -0.1532, "revenue": 11240.0, "ebitda_abs": -1721.0, "cmg_abs": 2636.0, "gastos_fin": -0.1654, "cf_inventario": -0.0771, "result_neto": -1.1032}, {"proveedor": "NITRIFLEX", "producto": "N-2611", "precio": 3.89, "ddp": -3.19, "vol": 9000.0, "cmg": 0.03, "cmg_pct": 0.0081, "ebitda": -2.15, "ebitda_pct": -0.552, "revenue": 35010.0, "ebitda_abs": -19325.0, "cmg_abs": 284.0, "gastos_fin": -0.1654, "cf_inventario": -0.097, "result_neto": -2.4097}, {"proveedor": "NITRIFLEX", "producto": "N-300", "precio": 4.54, "ddp": -3.47, "vol": 160.0, "cmg": 0.37, "cmg_pct": 0.0812, "ebitda": -1.81, "ebitda_pct": -0.3987, "revenue": 726.0, "ebitda_abs": -290.0, "cmg_abs": 59.0, "gastos_fin": -0.1654, "cf_inventario": -0.0871, "result_neto": -2.0625}, {"proveedor": "NITRIFLEX", "producto": "N-608", "precio": 4.57, "ddp": -2.83, "vol": 1430.0, "cmg": 1.04, "cmg_pct": 0.2265, "ebitda": -1.14, "ebitda_pct": -0.2502, "revenue": 6535.0, "ebitda_abs": -1635.0, "cmg_abs": 1480.0, "gastos_fin": -0.1654, "cf_inventario": -0.0738, "result_neto": -1.3827}, {"proveedor": "NITRIFLEX", "producto": "N-728", "precio": 4.49, "ddp": -3.04, "vol": 1420.0, "cmg": 0.75, "cmg_pct": 0.1673, "ebitda": -1.43, "ebitda_pct": -0.318, "revenue": 6376.0, "ebitda_abs": -2027.0, "cmg_abs": 1067.0, "gastos_fin": -0.1654, "cf_inventario": -0.1257, "result_neto": -1.7188}, {"proveedor": "NITRIFLEX", "producto": "N-612 B", "precio": 2.95, "ddp": -2.64, "vol": 12800.0, "cmg": -0.31, "cmg_pct": -0.1061, "ebitda": -2.49, "ebitda_pct": -0.8446, "revenue": 37760.0, "ebitda_abs": -31893.0, "cmg_abs": -4005.0, "gastos_fin": -0.1654, "cf_inventario": -0.025, "result_neto": -2.6821}, {"proveedor": "NITRIFLEX", "producto": "N-615 B", "precio": 2.95, "ddp": -2.59, "vol": 20300.0, "cmg": -0.27, "cmg_pct": -0.0905, "ebitda": -2.45, "ebitda_pct": -0.829, "revenue": 59885.0, "ebitda_abs": -49646.0, "cmg_abs": -5418.0, "gastos_fin": -0.1654, "cf_inventario": -0.0217, "result_neto": -2.6328}, {"proveedor": "NITRIFLEX", "producto": "N-7410", "precio": 5.23, "ddp": -3.27, "vol": 1925.0, "cmg": 1.23, "cmg_pct": 0.2346, "ebitda": -0.95, "ebitda_pct": -0.182, "revenue": 10068.0, "ebitda_abs": -1833.0, "cmg_abs": 2361.0, "gastos_fin": -0.1654, "cf_inventario": -0.1186, "result_neto": -1.236}, {"proveedor": "NITRIFLEX", "producto": "NTL-3350 X", "precio": 7.17, "ddp": -5.24, "vol": 120.0, "cmg": 1.11, "cmg_pct": 0.1541, "ebitda": -1.07, "ebitda_pct": -0.1497, "revenue": 860.0, "ebitda_abs": -129.0, "cmg_abs": 133.0, "gastos_fin": -0.1654, "cf_inventario": -0.0269, "result_neto": -1.2659}, {"proveedor": "NITRIFLEX", "producto": "NTL-3450 X.1", "precio": 6.24, "ddp": -4.57, "vol": 1000.0, "cmg": 0.89, "cmg_pct": 0.1424, "ebitda": -1.29, "ebitda_pct": -0.2067, "revenue": 6240.0, "ebitda_abs": -1290.0, "cmg_abs": 889.0, "gastos_fin": -0.1654, "cf_inventario": -0.0432, "result_neto": -1.4985}, {"proveedor": "NITRIFLEX", "producto": "NITRICLEAN 3345", "precio": 4.55, "ddp": -3.62, "vol": 2400.0, "cmg": 0.23, "cmg_pct": 0.0502, "ebitda": -1.95, "ebitda_pct": -0.4287, "revenue": 10920.0, "ebitda_abs": -4681.0, "cmg_abs": 548.0, "gastos_fin": -0.1654, "cf_inventario": -0.1249, "result_neto": -2.2408}, {"proveedor": "NITRIFLEX", "producto": "NP-2021", "precio": 4.75, "ddp": -3.38, "vol": 4400.0, "cmg": 0.65, "cmg_pct": 0.1377, "ebitda": -1.52, "ebitda_pct": -0.321, "revenue": 20900.0, "ebitda_abs": -6708.0, "cmg_abs": 2878.0, "gastos_fin": -0.1654, "cf_inventario": -0.0298, "result_neto": -1.7198}, {"proveedor": "NITRIFLEX", "producto": "NP-3183 NV", "precio": 5.81, "ddp": -4.69, "vol": 2500.0, "cmg": 0.36, "cmg_pct": 0.0617, "ebitda": -1.82, "ebitda_pct": -0.3133, "revenue": 14525.0, "ebitda_abs": -4551.0, "cmg_abs": 896.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -1.3286}, {"proveedor": "NITRIFLEX", "producto": "NTL-218", "precio": 3.52, "ddp": -2.12, "vol": 3300.0, "cmg": 0.75, "cmg_pct": 0.2126, "ebitda": -1.43, "ebitda_pct": -0.4063, "revenue": 11616.0, "ebitda_abs": -4720.0, "cmg_abs": 2470.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -1.0601}, {"proveedor": "NITRIFLEX", "producto": "NTL-525", "precio": 2.95, "ddp": -2.11, "vol": 4400.0, "cmg": 0.21, "cmg_pct": 0.0724, "ebitda": -1.97, "ebitda_pct": -0.6662, "revenue": 12980.0, "ebitda_abs": -8647.0, "cmg_abs": 939.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -1.4041}, {"proveedor": "NITRIFLEX", "producto": "NTL-571", "precio": 3.65, "ddp": -2.38, "vol": 6380.0, "cmg": 0.61, "cmg_pct": 0.168, "ebitda": -1.57, "ebitda_pct": -0.4289, "revenue": 23287.0, "ebitda_abs": -9989.0, "cmg_abs": 3911.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -1.1489}, {"proveedor": "PROQUITEC", "producto": "THERPOL NR-AD", "precio": 5.95, "ddp": -4.62, "vol": 1000.0, "cmg": 0.56, "cmg_pct": 0.0945, "ebitda": -1.62, "ebitda_pct": -0.2716, "revenue": 5950.0, "ebitda_abs": -1616.0, "cmg_abs": 562.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -1.1968}, {"proveedor": "RAPID PURGE", "producto": "MC-900", "precio": 12.01, "ddp": -7.32, "vol": 100.0, "cmg": 3.64, "cmg_pct": 0.3029, "ebitda": 1.46, "ebitda_pct": 0.1215, "revenue": 1201.0, "ebitda_abs": 146.0, "cmg_abs": 364.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": 0.7627}, {"proveedor": "RAPID PURGE", "producto": "PM-9240", "precio": 11.31, "ddp": -6.86, "vol": 2000.0, "cmg": 3.43, "cmg_pct": 0.3029, "ebitda": 1.25, "ebitda_pct": 0.1103, "revenue": 22620.0, "ebitda_abs": 2494.0, "cmg_abs": 6851.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": 0.6295}, {"proveedor": "SCHILL+SEILACHER", "producto": "KORESIN", "precio": 29.34, "ddp": -14.51, "vol": 250.0, "cmg": 12.96, "cmg_pct": 0.4417, "ebitda": 10.78, "ebitda_pct": 0.3674, "revenue": 7335.0, "ebitda_abs": 2695.0, "cmg_abs": 3240.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": 6.709}, {"proveedor": "SCHILL+SEILACHER", "producto": "KW-400 Balde", "precio": 19.87, "ddp": -13.35, "vol": 360.0, "cmg": 5.09, "cmg_pct": 0.2564, "ebitda": 2.92, "ebitda_pct": 0.1467, "revenue": 7153.0, "ebitda_abs": 1050.0, "cmg_abs": 1834.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": 1.6583}, {"proveedor": "SCHILL+SEILACHER", "producto": "KW-400 Tambor", "precio": 17.88, "ddp": -12.02, "vol": 0, "cmg": 4.53, "cmg_pct": 0.2535, "ebitda": 2.35, "ebitda_pct": 0.1317, "revenue": 0.0, "ebitda_abs": 0.0, "cmg_abs": 0.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": 1.3065}, {"proveedor": "SCHILL+SEILACHER", "producto": "LW-430", "precio": 11.04, "ddp": -6.63, "vol": 440.0, "cmg": 3.4, "cmg_pct": 0.3083, "ebitda": 1.22, "ebitda_pct": 0.1109, "revenue": 4858.0, "ebitda_abs": 539.0, "cmg_abs": 1497.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": 0.6167}, {"proveedor": "SCHILL+SEILACHER", "producto": "Permalease 10 Liquido", "precio": 21.2, "ddp": -17.13, "vol": 1050.0, "cmg": 2.59, "cmg_pct": 0.1222, "ebitda": 0.41, "ebitda_pct": 0.0194, "revenue": 22260.0, "ebitda_abs": 432.0, "cmg_abs": 2719.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": 0.0218}, {"proveedor": "SCHILL+SEILACHER", "producto": "SU-135", "precio": 60.0, "ddp": -33.66, "vol": 180.0, "cmg": 23.03, "cmg_pct": 0.3839, "ebitda": 20.85, "ebitda_pct": 0.3476, "revenue": 10800.0, "ebitda_abs": 3754.0, "cmg_abs": 4146.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": 13.0572}, {"proveedor": "SI GROUP COMERCIAL QUIMICA LTDA", "producto": "NAUGARD 445", "precio": 27.35, "ddp": -20.46, "vol": 180.0, "cmg": 5.12, "cmg_pct": 0.1871, "ebitda": 2.94, "ebitda_pct": 0.1074, "revenue": 4923.0, "ebitda_abs": 529.0, "cmg_abs": 921.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": 1.6244}, {"proveedor": "SI GROUP COMERCIAL QUIMICA LTDA", "producto": "NAUGARD Q", "precio": 4.66, "ddp": -3.52, "vol": 150.0, "cmg": 0.43, "cmg_pct": 0.0929, "ebitda": -1.75, "ebitda_pct": -0.3746, "revenue": 699.0, "ebitda_abs": -262.0, "cmg_abs": 65.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -1.2725}, {"proveedor": "SI GROUP COMERCIAL QUIMICA LTDA", "producto": "SP-1068", "precio": 5.34, "ddp": -4.0, "vol": 2850.0, "cmg": 0.6, "cmg_pct": 0.1126, "ebitda": -1.58, "ebitda_pct": -0.2954, "revenue": 15219.0, "ebitda_abs": -4496.0, "cmg_abs": 1713.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -1.1676}, {"proveedor": "SI GROUP COMERCIAL QUIMICA LTDA", "producto": "SP-6600", "precio": 11.74, "ddp": -8.31, "vol": 990.0, "cmg": 2.39, "cmg_pct": 0.2033, "ebitda": 0.21, "ebitda_pct": 0.0177, "revenue": 11623.0, "ebitda_abs": 206.0, "cmg_abs": 2363.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -0.0488}, {"proveedor": "SI GROUP SHANGAI", "producto": "ANOX 20", "precio": 5.85, "ddp": -5.07, "vol": 100.0, "cmg": 0.02, "cmg_pct": 0.0033, "ebitda": -2.16, "ebitda_pct": -0.3691, "revenue": 585.0, "ebitda_abs": -216.0, "cmg_abs": 2.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -1.549}, {"proveedor": "SI GROUP SHANGAI", "producto": "ALKANOX 240", "precio": 5.43, "ddp": -4.71, "vol": 100.0, "cmg": -0.02, "cmg_pct": -0.0034, "ebitda": -2.2, "ebitda_pct": -0.4047, "revenue": 543.0, "ebitda_abs": -220.0, "cmg_abs": -2.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -1.5711}, {"proveedor": "SI GROUP SHANGAI", "producto": "ANOX PP18", "precio": 6.35, "ddp": -5.5, "vol": 100.0, "cmg": 0.06, "cmg_pct": 0.0097, "ebitda": -2.12, "ebitda_pct": -0.3334, "revenue": 635.0, "ebitda_abs": -212.0, "cmg_abs": 6.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -1.5248}, {"proveedor": "SI GROUP INC", "producto": "SP-103", "precio": 3.98, "ddp": -3.3, "vol": 12000.0, "cmg": 0.0, "cmg_pct": 0.001, "ebitda": -2.17, "ebitda_pct": -0.5464, "revenue": 47760.0, "ebitda_abs": -26096.0, "cmg_abs": 49.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -1.5469}, {"proveedor": "SI GROUP INC", "producto": "SP-134", "precio": 3.49, "ddp": -3.3, "vol": 40000.0, "cmg": -0.46, "cmg_pct": -0.1326, "ebitda": -2.64, "ebitda_pct": -0.7569, "revenue": 139600.0, "ebitda_abs": -105665.0, "cmg_abs": -18516.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -1.8473}, {"proveedor": "SI GROUP INC", "producto": "SP-1045", "precio": 17.98, "ddp": -14.57, "vol": 1000.0, "cmg": 2.08, "cmg_pct": 0.1157, "ebitda": -0.1, "ebitda_pct": -0.0055, "revenue": 17980.0, "ebitda_abs": -99.0, "cmg_abs": 2080.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -0.2887}, {"proveedor": "STRUKTOL CO OF AMERICA", "producto": "40MS", "precio": 2.25, "ddp": -2.03, "vol": 11500.0, "cmg": -0.37, "cmg_pct": -0.1661, "ebitda": -2.55, "ebitda_pct": -1.1344, "revenue": 25875.0, "ebitda_abs": -29352.0, "cmg_abs": -4297.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -1.7812}, {"proveedor": "STRUKTOL CO OF AMERICA", "producto": "A-86", "precio": 10.4, "ddp": -7.52, "vol": 800.0, "cmg": 1.9, "cmg_pct": 0.1832, "ebitda": -0.27, "ebitda_pct": -0.0263, "revenue": 8320.0, "ebitda_abs": -219.0, "cmg_abs": 1524.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -0.3531}, {"proveedor": "STRUKTOL CO OF AMERICA", "producto": "EF-44", "precio": 7.11, "ddp": -5.66, "vol": 2500.0, "cmg": 0.63, "cmg_pct": 0.0884, "ebitda": -1.55, "ebitda_pct": -0.2181, "revenue": 17775.0, "ebitda_abs": -3876.0, "cmg_abs": 1571.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -1.1615}, {"proveedor": "STRUKTOL CO OF AMERICA", "producto": "RP 11", "precio": 8.0, "ddp": -12.62, "vol": 2000.0, "cmg": -5.48, "cmg_pct": -0.6852, "ebitda": -7.66, "ebitda_pct": -0.9576, "revenue": 16000.0, "ebitda_abs": -15321.0, "cmg_abs": -10964.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -5.1388}, {"proveedor": "STRUKTOL CO OF AMERICA", "producto": "RP 28", "precio": 13.26, "ddp": -9.59, "vol": 400.0, "cmg": 2.56, "cmg_pct": 0.193, "ebitda": 0.38, "ebitda_pct": 0.0287, "revenue": 5304.0, "ebitda_abs": 152.0, "cmg_abs": 1024.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": 0.0534}, {"proveedor": "STRUKTOL CO OF AMERICA", "producto": "RP 38", "precio": 18.16, "ddp": -13.11, "vol": 800.0, "cmg": 3.71, "cmg_pct": 0.2042, "ebitda": 1.53, "ebitda_pct": 0.0842, "revenue": 14528.0, "ebitda_abs": 1224.0, "cmg_abs": 2967.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": 0.7689}, {"proveedor": "STRUKTOL CO OF AMERICA", "producto": "SCA-98 Liq. x 20kg", "precio": 18.36, "ddp": -12.71, "vol": 600.0, "cmg": 4.3, "cmg_pct": 0.234, "ebitda": 2.12, "ebitda_pct": 0.1153, "revenue": 11016.0, "ebitda_abs": 1271.0, "cmg_abs": 2578.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": 1.1497}, {"proveedor": "STRUKTOL CO OF AMERICA", "producto": "SCA-98 Liq. x 200kg - Tambor", "precio": 15.64, "ddp": -11.44, "vol": 400.0, "cmg": 2.98, "cmg_pct": 0.1903, "ebitda": 0.8, "ebitda_pct": 0.0509, "revenue": 6256.0, "ebitda_abs": 319.0, "cmg_abs": 1190.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": 0.3088}, {"proveedor": "STRUKTOL CO OF AMERICA", "producto": "TR-131", "precio": 20.6, "ddp": -14.36, "vol": 600.0, "cmg": 4.78, "cmg_pct": 0.232, "ebitda": 2.6, "ebitda_pct": 0.1262, "revenue": 12360.0, "ebitda_abs": 1560.0, "cmg_abs": 2868.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": 1.449}, {"proveedor": "STRUKTOL CO OF AMERICA", "producto": "WB-16", "precio": 7.65, "ddp": -5.53, "vol": 2000.0, "cmg": 1.27, "cmg_pct": 0.166, "ebitda": -0.91, "ebitda_pct": -0.1188, "revenue": 15300.0, "ebitda_abs": -1818.0, "cmg_abs": 2539.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -0.7481}, {"proveedor": "STRUKTOL CO OF AMERICA", "producto": "WB-212", "precio": 7.1, "ddp": -5.13, "vol": 400.0, "cmg": 1.15, "cmg_pct": 0.1614, "ebitda": -1.03, "ebitda_pct": -0.1455, "revenue": 2840.0, "ebitda_abs": -413.0, "cmg_abs": 458.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -0.8252}, {"proveedor": "STRUKTOL CO OF AMERICA", "producto": "WB-222", "precio": 6.79, "ddp": -4.91, "vol": 600.0, "cmg": 1.07, "cmg_pct": 0.158, "ebitda": -1.11, "ebitda_pct": -0.1628, "revenue": 4074.0, "ebitda_abs": -663.0, "cmg_abs": 644.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -0.8704}, {"proveedor": "STRUKTOL CO OF AMERICA", "producto": "WB-300 Balde x 20kg", "precio": 16.14, "ddp": -11.69, "vol": 140.0, "cmg": 3.21, "cmg_pct": 0.1988, "ebitda": 1.03, "ebitda_pct": 0.0638, "revenue": 2260.0, "ebitda_abs": 144.0, "cmg_abs": 449.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": 0.4572}, {"proveedor": "STRUKTOL CO OF AMERICA", "producto": "WB-300 Tambor 200kg", "precio": 14.53, "ddp": -10.52, "vol": 0, "cmg": 2.84, "cmg_pct": 0.1954, "ebitda": 0.66, "ebitda_pct": 0.0455, "revenue": 0.0, "ebitda_abs": 0.0, "cmg_abs": 0.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": 0.2274}, {"proveedor": "STRUKTOL CO OF AMERICA", "producto": "Estearato de Zinc", "precio": 3.9, "ddp": -6.69, "vol": 1200.0, "cmg": -3.46, "cmg_pct": -0.8875, "ebitda": -5.64, "ebitda_pct": -1.4461, "revenue": 4680.0, "ebitda_abs": -6768.0, "cmg_abs": -4153.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -3.7988}, {"proveedor": "VON ROLL", "producto": "Polyglas H200 20 MM", "precio": 1.01, "ddp": -0.61, "vol": 12000.0, "cmg": -0.14, "cmg_pct": -0.134, "ebitda": -2.31, "ebitda_pct": -2.2911, "revenue": 12120.0, "ebitda_abs": -27769.0, "cmg_abs": -1624.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -1.6182}, {"proveedor": "VON ROLL", "producto": "Polyglas P30 50 MM", "precio": 2.62, "ddp": -1.94, "vol": 1800.0, "cmg": 0.07, "cmg_pct": 0.0259, "ebitda": -2.11, "ebitda_pct": -0.8057, "revenue": 4716.0, "ebitda_abs": -3799.0, "cmg_abs": 122.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": -1.4966}, {"proveedor": "ZEON CHEMICALS", "producto": "ZETPOL 2020L", "precio": 52.09, "ddp": -35.33, "vol": 500.0, "cmg": 13.82, "cmg_pct": 0.2654, "ebitda": 11.65, "ebitda_pct": 0.2236, "revenue": 26045.0, "ebitda_abs": 5823.0, "cmg_abs": 6912.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": 7.1233}, {"proveedor": "ZEON CHEMICALS", "producto": "HYTEMP AR212XP", "precio": 17.13, "ddp": -11.52, "vol": 500.0, "cmg": 4.32, "cmg_pct": 0.252, "ebitda": 2.14, "ebitda_pct": 0.1248, "revenue": 8565.0, "ebitda_abs": 1069.0, "cmg_abs": 2159.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": 1.171}, {"proveedor": "ZEON CHEMICALS", "producto": "HYTEMP 4051", "precio": 22.27, "ddp": -14.77, "vol": 1000.0, "cmg": 5.97, "cmg_pct": 0.2679, "ebitda": 3.79, "ebitda_pct": 0.17, "revenue": 22270.0, "ebitda_abs": 3787.0, "cmg_abs": 5966.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": 2.2092}, {"proveedor": "ZEON CHEMICALS", "producto": "HYTEMP AR715", "precio": 20.45, "ddp": -13.75, "vol": 100.0, "cmg": 5.25, "cmg_pct": 0.2568, "ebitda": 3.07, "ebitda_pct": 0.1502, "revenue": 2045.0, "ebitda_abs": 307.0, "cmg_abs": 525.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": 1.7565}, {"proveedor": "ZEON CHEMICALS", "producto": "HYTEMP NS70", "precio": 46.14, "ddp": -30.63, "vol": 18.0, "cmg": 12.85, "cmg_pct": 0.2785, "ebitda": 10.67, "ebitda_pct": 0.2313, "revenue": 837.0, "ebitda_abs": 194.0, "cmg_abs": 233.0, "gastos_fin": -0.1654, "cf_inventario": 0, "result_neto": 6.5281}], "proveedores": [{"nombre": "NITRIFLEX", "revenue": 268928, "ebitda": -149085, "vol": 73535, "count": 16, "margin": -55.4}, {"nombre": "SI GROUP INC", "revenue": 205340, "ebitda": -131860, "vol": 53000, "count": 3, "margin": -64.2}, {"nombre": "STRUKTOL CO OF AMERICA", "revenue": 146588, "ebitda": -53760, "vol": 23940, "count": 15, "margin": -36.7}, {"nombre": "ZEON CHEMICALS", "revenue": 59762, "ebitda": 11180, "vol": 2118, "count": 5, "margin": 18.7}, {"nombre": "ASK CRIOS PROD QUIM DO BRASIL", "revenue": 53720, "ebitda": -25832, "vol": 14400, "count": 4, "margin": -48.1}, {"nombre": "SCHILL+SEILACHER", "revenue": 52406, "ebitda": 8470, "vol": 2280, "count": 6, "margin": 16.2}, {"nombre": "ALTIMA GROUP", "revenue": 39060, "ebitda": 9889, "vol": 408, "count": 1, "margin": 25.3}, {"nombre": "SI GROUP COMERCIAL QUIMICA LTDA", "revenue": 32464, "ebitda": -4023, "vol": 4170, "count": 4, "margin": -12.4}, {"nombre": "RAPID PURGE", "revenue": 23821, "ebitda": 2640, "vol": 2100, "count": 2, "margin": 11.1}, {"nombre": "BRASKEM", "revenue": 22500, "ebitda": -19707, "vol": 7500, "count": 1, "margin": -87.6}, {"nombre": "ARKEMA", "revenue": 20438, "ebitda": 3946, "vol": 780, "count": 4, "margin": 19.3}, {"nombre": "VON ROLL", "revenue": 16836, "ebitda": -31568, "vol": 13800, "count": 2, "margin": -187.5}, {"nombre": "PROQUITEC", "revenue": 5950, "ebitda": -1616, "vol": 1000, "count": 1, "margin": -27.2}, {"nombre": "SI GROUP SHANGAI", "revenue": 1763, "ebitda": -648, "vol": 300, "count": 3, "margin": -36.8}], "losers": [{"proveedor": "SI GROUP INC", "producto": "SP-134", "precio": 3.49, "ddp": -3.3, "vol": 40000.0, "cmg": -0.46, "cmg_pct": -0.1326, "ebitda": -2.64, "ebitda_pct": -0.7569, "revenue": 139600.0, "ebitda_abs": -105665.0, "cmg_abs": -18516.0}, {"proveedor": "NITRIFLEX", "producto": "N-615 B", "precio": 2.95, "ddp": -2.59, "vol": 20300.0, "cmg": -0.27, "cmg_pct": -0.0905, "ebitda": -2.45, "ebitda_pct": -0.829, "revenue": 59885.0, "ebitda_abs": -49646.0, "cmg_abs": -5418.0}, {"proveedor": "NITRIFLEX", "producto": "N-612 B", "precio": 2.95, "ddp": -2.64, "vol": 12800.0, "cmg": -0.31, "cmg_pct": -0.1061, "ebitda": -2.49, "ebitda_pct": -0.8446, "revenue": 37760.0, "ebitda_abs": -31893.0, "cmg_abs": -4005.0}, {"proveedor": "STRUKTOL CO OF AMERICA", "producto": "40MS", "precio": 2.25, "ddp": -2.03, "vol": 11500.0, "cmg": -0.37, "cmg_pct": -0.1661, "ebitda": -2.55, "ebitda_pct": -1.1344, "revenue": 25875.0, "ebitda_abs": -29352.0, "cmg_abs": -4297.0}, {"proveedor": "VON ROLL", "producto": "Polyglas H200 20 MM", "precio": 1.01, "ddp": -0.61, "vol": 12000.0, "cmg": -0.14, "cmg_pct": -0.134, "ebitda": -2.31, "ebitda_pct": -2.2911, "revenue": 12120.0, "ebitda_abs": -27769.0, "cmg_abs": -1624.0}, {"proveedor": "SI GROUP INC", "producto": "SP-103", "precio": 3.98, "ddp": -3.3, "vol": 12000.0, "cmg": 0.0, "cmg_pct": 0.001, "ebitda": -2.17, "ebitda_pct": -0.5464, "revenue": 47760.0, "ebitda_abs": -26096.0, "cmg_abs": 49.0}, {"proveedor": "BRASKEM", "producto": "Unilene A-80", "precio": 3.0, "ddp": -2.82, "vol": 7500.0, "cmg": -0.45, "cmg_pct": -0.1496, "ebitda": -2.63, "ebitda_pct": -0.8759, "revenue": 22500.0, "ebitda_abs": -19707.0, "cmg_abs": -3367.0}, {"proveedor": "NITRIFLEX", "producto": "N-2611", "precio": 3.89, "ddp": -3.19, "vol": 9000.0, "cmg": 0.03, "cmg_pct": 0.0081, "ebitda": -2.15, "ebitda_pct": -0.552, "revenue": 35010.0, "ebitda_abs": -19325.0, "cmg_abs": 284.0}, {"proveedor": "ASK CRIOS PROD QUIM DO BRASIL", "producto": "CB-7992", "precio": 3.45, "ddp": -2.54, "vol": 10000.0, "cmg": 0.26, "cmg_pct": 0.076, "ebitda": -1.92, "ebitda_pct": -0.5555, "revenue": 34500.0, "ebitda_abs": -19165.0, "cmg_abs": 2622.0}, {"proveedor": "STRUKTOL CO OF AMERICA", "producto": "RP 11", "precio": 8.0, "ddp": -12.62, "vol": 2000.0, "cmg": -5.48, "cmg_pct": -0.6852, "ebitda": -7.66, "ebitda_pct": -0.9576, "revenue": 16000.0, "ebitda_abs": -15321.0, "cmg_abs": -10964.0}], "winners": [{"proveedor": "ALTIMA GROUP", "producto": "DYMALINK 633", "precio": 95.68, "ddp": -64.29, "vol": 408.0, "cmg": 26.4, "cmg_pct": 0.276, "ebitda": 24.22, "ebitda_pct": 0.2532, "revenue": 39060.0, "ebitda_abs": 9889.0, "cmg_abs": 10779.0}, {"proveedor": "ZEON CHEMICALS", "producto": "ZETPOL 2020L", "precio": 52.09, "ddp": -35.33, "vol": 500.0, "cmg": 13.82, "cmg_pct": 0.2654, "ebitda": 11.65, "ebitda_pct": 0.2236, "revenue": 26045.0, "ebitda_abs": 5823.0, "cmg_abs": 6912.0}, {"proveedor": "ZEON CHEMICALS", "producto": "HYTEMP 4051", "precio": 22.27, "ddp": -14.77, "vol": 1000.0, "cmg": 5.97, "cmg_pct": 0.2679, "ebitda": 3.79, "ebitda_pct": 0.17, "revenue": 22270.0, "ebitda_abs": 3787.0, "cmg_abs": 5966.0}, {"proveedor": "SCHILL+SEILACHER", "producto": "SU-135", "precio": 60.0, "ddp": -33.66, "vol": 180.0, "cmg": 23.03, "cmg_pct": 0.3839, "ebitda": 20.85, "ebitda_pct": 0.3476, "revenue": 10800.0, "ebitda_abs": 3754.0, "cmg_abs": 4146.0}, {"proveedor": "ARKEMA", "producto": "SR 350 - Tambor", "precio": 25.55, "ddp": -16.81, "vol": 600.0, "cmg": 7.05, "cmg_pct": 0.2758, "ebitda": 4.87, "ebitda_pct": 0.1905, "revenue": 15330.0, "ebitda_abs": 2921.0, "cmg_abs": 4228.0}, {"proveedor": "SCHILL+SEILACHER", "producto": "KORESIN", "precio": 29.34, "ddp": -14.51, "vol": 250.0, "cmg": 12.96, "cmg_pct": 0.4417, "ebitda": 10.78, "ebitda_pct": 0.3674, "revenue": 7335.0, "ebitda_abs": 2695.0, "cmg_abs": 3240.0}, {"proveedor": "RAPID PURGE", "producto": "PM-9240", "precio": 11.31, "ddp": -6.86, "vol": 2000.0, "cmg": 3.43, "cmg_pct": 0.3029, "ebitda": 1.25, "ebitda_pct": 0.1103, "revenue": 22620.0, "ebitda_abs": 2494.0, "cmg_abs": 6851.0}, {"proveedor": "STRUKTOL CO OF AMERICA", "producto": "TR-131", "precio": 20.6, "ddp": -14.36, "vol": 600.0, "cmg": 4.78, "cmg_pct": 0.232, "ebitda": 2.6, "ebitda_pct": 0.1262, "revenue": 12360.0, "ebitda_abs": 1560.0, "cmg_abs": 2868.0}, {"proveedor": "STRUKTOL CO OF AMERICA", "producto": "SCA-98 Liq. x 20kg", "precio": 18.36, "ddp": -12.71, "vol": 600.0, "cmg": 4.3, "cmg_pct": 0.234, "ebitda": 2.12, "ebitda_pct": 0.1153, "revenue": 11016.0, "ebitda_abs": 1271.0, "cmg_abs": 2578.0}, {"proveedor": "STRUKTOL CO OF AMERICA", "producto": "RP 38", "precio": 18.16, "ddp": -13.11, "vol": 800.0, "cmg": 3.71, "cmg_pct": 0.2042, "ebitda": 1.53, "ebitda_pct": 0.0842, "revenue": 14528.0, "ebitda_abs": 1224.0, "cmg_abs": 2967.0}], "totals": {"revenue": 949576, "ebitda": -381974, "cmg": 52312, "vol": 199331, "margin": -40.2, "cmg_margin": 5.5, "n_products": 67, "n_profitable": 23, "n_unprofitable": 40, "gastos_fijos_kg": 2.1787, "mod_kg": 0.2879, "imp_tasa": 0.047, "flete_kg": 0.2, "gastos_fin": -32973.0, "cf_inventario": -6380.0, "result_neto": -338087.0}};
+var INV = [{"producto": "ASACLEAN C - Bolsas 25kg", "origen": "USA", "vol_anual": 408.24, "lead_time": 70, "stock_seg": 35, "ddp": -64.2922}, {"producto": "CB-7855 G/3 - Compresion", "origen": "USA", "vol_anual": 0, "lead_time": 70, "stock_seg": 60, "ddp": -16.22288888888889}, {"producto": "CB-7992", "origen": "USA", "vol_anual": 0, "lead_time": 70, "stock_seg": 60, "ddp": -14.6006}, {"producto": "DYMALINK 633", "origen": "USA", "vol_anual": 600.0, "lead_time": 82, "stock_seg": 60, "ddp": -16.8144}, {"producto": "DYMALINK 634", "origen": "USA", "vol_anual": 180.0, "lead_time": 82, "stock_seg": 60, "ddp": -18.682666666666666}, {"producto": "KW-400 Balde", "origen": "USA", "vol_anual": 2500.0, "lead_time": 57, "stock_seg": 45, "ddp": -2.688}, {"producto": "N-2611", "origen": "BR", "vol_anual": 1400.0, "lead_time": 57, "stock_seg": 45, "ddp": -2.688}, {"producto": "N-612 B", "origen": "BR", "vol_anual": 10000.0, "lead_time": 57, "stock_seg": 45, "ddp": -2.5378}, {"producto": "N-615 B", "origen": "BR", "vol_anual": 500.0, "lead_time": 57, "stock_seg": 45, "ddp": -5.5354}, {"producto": "NP-2021", "origen": "BR", "vol_anual": 7500.0, "lead_time": 57, "stock_seg": 45, "ddp": -2.82}, {"producto": "NP-3183 NV", "origen": "BR", "vol_anual": 2000.0, "lead_time": 57, "stock_seg": 45, "ddp": -3.55}, {"producto": "NTL-218", "origen": "BR", "vol_anual": 9000.0, "lead_time": 57, "stock_seg": 45, "ddp": -3.1878}, {"producto": "Permalease 10 Liquido", "origen": "EU", "vol_anual": 160.0, "lead_time": 60, "stock_seg": 30, "ddp": -3.47}, {"producto": "Polyglas H200 20 MM", "origen": "EU", "vol_anual": 1430.0, "lead_time": 70, "stock_seg": 60, "ddp": -2.8321}, {"producto": "SCA-98 Liq. x 20kg", "origen": "BR", "vol_anual": 1420.0, "lead_time": 36, "stock_seg": 20, "ddp": -3.04}, {"producto": "R 11", "origen": "BR", "vol_anual": 12800.0, "lead_time": 36, "stock_seg": 20, "ddp": -2.6364}, {"producto": "SP-103", "origen": "USA", "vol_anual": 20300.0, "lead_time": 72, "stock_seg": 60, "ddp": -2.5904}, {"producto": "SP-1068", "origen": "BR", "vol_anual": 1925.0, "lead_time": 36, "stock_seg": 20, "ddp": -3.2696}, {"producto": "SP-134", "origen": "BR", "vol_anual": 120.0, "lead_time": 36, "stock_seg": 20, "ddp": -5.24}, {"producto": "SR 350", "origen": "USA", "vol_anual": 1000.0, "lead_time": 62, "stock_seg": 40, "ddp": -4.57}, {"producto": "Unilene A-80", "origen": "BR", "vol_anual": 2400.0, "lead_time": 36, "stock_seg": 20, "ddp": -3.62}];
+
+var S = [];
+for(var i=0;i<INV.length;i++){
+  S.push({p:INV[i].producto,o:INV[i].origen,v:INV[i].vol_anual,lt:INV[i].lead_time,ss:INV[i].stock_seg,d:INV[i].ddp});
+}
+
+function gTNA(){return parseFloat(document.getElementById("gTNA").value)/100}
+function gTC(){return parseFloat(document.getElementById("gTC").value)||1490}
+function gVol(){return parseFloat(document.getElementById("gVol").value)||17500}
+
+function ci(s){
+  var sd=s.lt+s.ss;
+  var sk=s.v>0?(s.v/365)*sd:0;
+  var su=sk*Math.abs(s.d);
+  var t=gTNA();
+  var cfd=s.v>0?(su*t)/(s.v*365):0;
+  var cfs=cfd*sd;
+  var cfp=Math.abs(s.d)>0?cfs/Math.abs(s.d):0;
+  var cfa=cfs*s.v;
+  return {sd:sd,sk:sk,su:su,cfd:cfd,cfs:cfs,cfp:cfp,cfa:cfa};
+}
 
 function fmt(n){return Math.abs(n).toLocaleString("es-AR",{maximumFractionDigits:0})}
-function fmtD(n){return n.toFixed(2)}
-function pct(n){return (n*100).toFixed(1)+"%"}
+function fd(n){return n.toFixed(2)}
+function fd4(n){return n.toFixed(4)}
 
-var currentTab = "resumen";
-var tabNames = [
-  {id:"resumen",label:"Resumen Ejecutivo"},
-  {id:"proveedores",label:"Por Proveedor"},
-  {id:"productos",label:"Por Producto"},
-  {id:"alertas",label:"Alertas"},
-  {id:"simulador",label:"Simulador"},
-  {id:"unitario",label:"Vista Unitaria"}
-];
-
-function renderTabs(){
-  var h = "";
-  for(var i=0;i<tabNames.length;i++){
-    var t = tabNames[i];
-    var ac = currentTab===t.id?" active":"";
-    h += "<div class=\"tab"+ac+"\" data-tab=\""+t.id+"\">"+t.label+"</div>";
-  }
-  document.getElementById("tabs").innerHTML = h;
-  var tabEls = document.getElementById("tabs").getElementsByClassName("tab");
-  for(var j=0;j<tabEls.length;j++){
-    tabEls[j].addEventListener("click", function(){switchTab(this.getAttribute("data-tab"))});
-  }
+function updateG(){
+  document.getElementById("gTNAv").textContent=(gTNA()*100).toFixed(1)+"%";
+  renderAll();
 }
 
-function switchTab(id){
-  currentTab = id;
-  renderTabs();
-  renderContent();
+function ui(idx,f,val){
+  S[idx][f]=parseInt(val);
+  renderAll();
 }
 
-function renderContent(){
-  if(currentTab==="resumen") renderResumen();
-  else if(currentTab==="proveedores") renderProveedores();
-  else if(currentTab==="productos") renderProductos();
-  else if(currentTab==="alertas") renderAlertas();
-  else if(currentTab==="simulador") renderSimulador();
-  else if(currentTab==="unitario") renderUnitario();
+function uv(idx,val){
+  S[idx].v=parseFloat(val)||0;
+  renderAll();
 }
 
-function renderResumen(){
-  var t = D.totals;
-  var h = '<div class="kpis">';
-  h += '<div class="kpi"><div class="lb">Revenue Anual</div><div class="vl">USD '+fmt(t.revenue)+'</div><div class="delta">'+t.n_products+' productos</div></div>';
-  h += '<div class="kpi"><div class="lb">CMG Anual</div><div class="vl" style="color:'+(t.cmg>=0?'var(--gn)':'var(--rd)')+'">USD '+fmt(t.cmg)+'</div><div class="delta">'+t.cmg_margin+'% margen</div></div>';
-  h += '<div class="kpi"><div class="lb">EBITDA Anual</div><div class="vl" style="color:var(--rd)">USD '+fmt(t.ebitda)+'</div><div class="delta" style="color:var(--rd)">'+t.margin+'% margen</div></div>';
-  h += '<div class="kpi"><div class="lb">Volumen Anual</div><div class="vl">'+fmt(t.vol)+' kg</div><div class="delta">17,500 kg/mes</div></div>';
-  h += '<div class="kpi"><div class="lb">Gastos Fijos</div><div class="vl" style="color:var(--or)">USD '+fmtD(t.gastos_fijos_kg)+'/kg</div><div class="delta">'+t.n_profitable+' rentables / '+t.n_unprofitable+' con perdida</div></div>';
-  h += '</div>';
-  h += '<div class="kpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px">';
-  h += '<div class="kpi"><div class="lb">Gastos Financieros</div><div class="vl" style="color:var(--rd)">USD '+fmt(t.gastos_fin)+'</div><div class="delta">Prestamos + intereses</div></div>';
-  h += '<div class="kpi"><div class="lb">CF Inventario</div><div class="vl" style="color:var(--rd)">USD '+fmt(t.cf_inventario)+'</div><div class="delta">19 productos con stock</div></div>';
-  h += '<div class="kpi"><div class="lb">Resultado Neto</div><div class="vl" style="color:var(--rd)">USD '+fmt(t.result_neto)+'</div><div class="delta">Post gastos financieros e imp</div></div>';
-  h += '<div class="kpi"><div class="lb">Stock Inmovilizado</div><div class="vl" style="color:var(--or)">USD 69,599</div><div class="delta">21 productos en inventario</div></div>';
-  h += '</div>';
-  
-  // Winners
-  h += '<div class="row"><div class="card"><h3>Top 10 Ganadores</h3><table><thead><tr><th>Producto</th><th style="text-align:right">EBITDA USD</th><th style="text-align:right">Margen</th><th>Vol</th></tr></thead><tbody>';
-  for(var i=0;i<D.winners.length;i++){
-    var p=D.winners[i];
-    h += '<tr><td style="font-weight:500">'+p.producto+'</td><td class="mono pos" style="text-align:right">'+fmt(p.ebitda_abs)+'</td><td class="mono pos" style="text-align:right">'+pct(p.ebitda_pct)+'</td><td class="mono">'+fmt(p.vol)+'</td></tr>';
-  }
-  h += '</tbody></table></div>';
-  
-  // Losers
-  h += '<div class="card"><h3>Top 10 con Perdida</h3><table><thead><tr><th>Producto</th><th style="text-align:right">Perdida USD</th><th style="text-align:right">Margen</th><th>Vol</th></tr></thead><tbody>';
-  for(var i=0;i<D.losers.length;i++){
-    var p=D.losers[i];
-    h += '<tr><td style="font-weight:500">'+p.producto+'</td><td class="mono neg" style="text-align:right">('+fmt(p.ebitda_abs)+')</td><td class="mono neg" style="text-align:right">'+pct(p.ebitda_pct)+'</td><td class="mono">'+fmt(p.vol)+'</td></tr>';
-  }
-  h += '</tbody></table></div></div>';
-  
-  // Proveedores summary
-  h += '<div class="card full"><h3>P&L por Proveedor</h3><table><thead><tr><th>Proveedor</th><th style="text-align:right">Revenue</th><th style="text-align:right">EBITDA</th><th style="text-align:right">Margen</th><th>Vol</th><th>#</th><th>Status</th></tr></thead><tbody>';
-  for(var i=0;i<D.proveedores.length;i++){
-    var p=D.proveedores[i];
-    var color = p.margin>10?'var(--gn)':p.margin>0?'var(--or)':'var(--rd)';
-    var tag = p.margin>10?'<span class="tag tag-ok">RENTABLE</span>':p.margin>0?'<span class="tag tag-warn">MARGINAL</span>':'<span class="tag tag-bad">PIERDE</span>';
-    h += '<tr><td style="font-weight:500">'+p.nombre+'</td><td class="mono" style="text-align:right">'+fmt(p.revenue)+'</td><td class="mono" style="text-align:right;color:'+color+'">'+fmt(p.ebitda)+'</td><td class="mono" style="text-align:right;color:'+color+'">'+p.margin+'%</td><td class="mono">'+fmt(p.vol)+'</td><td class="mono">'+p.count+'</td><td>'+tag+'</td></tr>';
-  }
-  h += '</tbody></table></div>';
-  document.getElementById("content").innerHTML = h;
+function renderAll(){renderKPIs();renderTable();renderSB();}
+
+function renderKPIs(){
+  var tsu=0,tcf=0,tv=0,nc=0;
+  for(var i=0;i<S.length;i++){var c=ci(S[i]);tsu+=c.su;tcf+=c.cfa;tv+=S[i].v;if(c.sk>0)nc++;}
+  var cpk=tv>0?tcf/tv:0;
+  var cma=(tcf/12)*gTC();
+  var h="";
+  h+='<div class="kpi"><div class="lb">Stock Inmovilizado</div><div class="vl" style="color:var(--or)">USD '+fmt(tsu)+'</div></div>';
+  h+='<div class="kpi"><div class="lb">CF Anual</div><div class="vl" style="color:var(--rd)">USD '+fmt(tcf)+'</div></div>';
+  h+='<div class="kpi"><div class="lb">CF Promedio USD/kg</div><div class="vl" style="color:var(--rd)">USD '+fd(cpk)+'</div></div>';
+  h+='<div class="kpi"><div class="lb">CF Mensual ARS</div><div class="vl" style="color:var(--rd)">ARS '+fmt(cma)+'</div></div>';
+  h+='<div class="kpi"><div class="lb">Con Stock</div><div class="vl">'+nc+' / '+S.length+'</div></div>';
+  document.getElementById("kpis").innerHTML=h;
 }
 
-function renderProveedores(){
-  var h = '<div class="card full"><h3>Revenue y EBITDA por Proveedor</h3><table><thead><tr><th>Proveedor</th><th style="text-align:right">Revenue</th><th>% Rev</th><th style="text-align:right">EBITDA</th><th style="text-align:right">Margen</th><th>Vol (kg)</th><th>#</th><th>Status</th></tr></thead><tbody>';
-  for(var i=0;i<D.proveedores.length;i++){
-    var p=D.proveedores[i];
-    var revPct = D.totals.revenue>0?(p.revenue/D.totals.revenue*100).toFixed(1):'0';
-    var color = p.margin>10?'var(--gn)':p.margin>0?'var(--or)':'var(--rd)';
-    var tag = p.margin>10?'<span class="tag tag-ok">OK</span>':p.margin>0?'<span class="tag tag-warn">!!!</span>':'<span class="tag tag-bad">X</span>';
-    h += '<tr><td style="font-weight:600">'+p.nombre+'</td><td class="mono" style="text-align:right">'+fmt(p.revenue)+'</td><td class="mono">'+revPct+'%</td><td class="mono" style="text-align:right;color:'+color+'">'+fmt(p.ebitda)+'</td><td class="mono" style="color:'+color+'">'+p.margin+'%</td><td class="mono">'+fmt(p.vol)+'</td><td class="mono">'+p.count+'</td><td>'+tag+'</td></tr>';
+function renderTable(){
+  var h='<table><thead><tr><th>Producto</th><th>Origen</th><th style="text-align:right">Vol Anual</th><th>Lead Time</th><th>Stock Seg</th><th>Std (dias)</th><th style="text-align:right">Stock kg</th><th style="text-align:right">DDP</th><th style="text-align:right">Stock USD</th><th style="text-align:right">CF/kg</th><th>%DDP</th><th style="text-align:right">CF Anual</th></tr></thead><tbody>';
+  for(var i=0;i<S.length;i++){
+    var s=S[i];var c=ci(s);
+    var cc=c.cfs>1?"var(--rd)":c.cfs>0.5?"var(--or)":"var(--gn)";
+    h+="<tr>";
+    h+='<td style="font-weight:500">'+s.p+'</td>';
+    h+='<td style="font-size:10px;color:var(--t2)">'+s.o+'</td>';
+    h+='<td><input type="number" value="'+s.v+'" onchange="uv('+i+',this.value)" style="width:70px;background:var(--s1);border:1px solid var(--bd);color:var(--ac);padding:2px 6px;border-radius:4px;font-family:JetBrains Mono;font-size:11px;text-align:right"></td>';
+    h+='<td><input type="range" min="0" max="120" value="'+s.lt+'" oninput="ui('+i+',\'lt\',this.value)"><span class="pv">'+s.lt+'d</span></td>';
+    h+='<td><input type="range" min="0" max="90" value="'+s.ss+'" oninput="ui('+i+',\'ss\',this.value)"><span class="pv">'+s.ss+'d</span></td>';
+    h+='<td class="mono" style="text-align:center">'+c.sd+'</td>';
+    h+='<td class="mono" style="text-align:right">'+fmt(c.sk)+'</td>';
+    h+='<td class="mono" style="text-align:right">'+fd(Math.abs(s.d))+'</td>';
+    h+='<td class="mono" style="text-align:right;color:var(--or)">'+fmt(c.su)+'</td>';
+    h+='<td class="mono" style="text-align:right;color:'+cc+'">'+fd(c.cfs)+'</td>';
+    h+='<td class="mono" style="color:'+cc+'">'+(c.cfp*100).toFixed(1)+'%</td>';
+    h+='<td class="mono" style="text-align:right;color:var(--rd)">'+fmt(c.cfa)+'</td>';
+    h+="</tr>";
   }
-  h += '<tr style="font-weight:700;border-top:2px solid var(--bd)"><td>TOTAL</td><td class="mono" style="text-align:right">'+fmt(D.totals.revenue)+'</td><td class="mono">100%</td><td class="mono neg" style="text-align:right">('+fmt(D.totals.ebitda)+')</td><td class="mono neg">'+D.totals.margin+'%</td><td class="mono">'+fmt(D.totals.vol)+'</td><td class="mono">'+D.totals.n_products+'</td><td></td></tr>';
-  h += '</tbody></table></div>';
-  document.getElementById("content").innerHTML = h;
+  h+="</tbody></table>";
+  document.getElementById("tbl").innerHTML=h;
 }
 
-function renderProductos(){
-  var h = '<div class="card full"><h3>P&L Detallado por Producto</h3>';
-  h += '<div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap">';
-  h += '<select id="sort-prod" onchange="doFilterProducts()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:6px;border-radius:6px;font-size:12px"><option value="revenue">Por Revenue</option><option value="ebitda">Por EBITDA</option><option value="margin">Por Margen</option><option value="vol">Por Volumen</option></select>';
-  h += '<select id="filter-prov" onchange="doFilterProducts()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:6px;border-radius:6px;font-size:12px"><option value="ALL">Todos</option>';
-  for(var i=0;i<D.proveedores.length;i++) h += '<option value="'+D.proveedores[i].nombre+'">'+D.proveedores[i].nombre+'</option>';
-  h += '</select>';
-  h += '<input id="search-prod" placeholder="Buscar..." oninput="doFilterProducts()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:6px;border-radius:6px;font-size:12px;flex:1;min-width:120px">';
-  h += '</div><div id="prod-table" style="max-height:calc(100vh - 300px);overflow-y:auto"></div></div>';
-  document.getElementById("content").innerHTML = h;
-  doFilterProducts();
-}
-
-function doFilterProducts(){
-  var prov = document.getElementById("filter-prov").value;
-  var search = document.getElementById("search-prod").value.toLowerCase();
-  var sort = document.getElementById("sort-prod").value;
-  var items = [];
-  for(var i=0;i<D.products.length;i++){
-    var p = D.products[i];
-    if(prov!=="ALL" && p.proveedor!==prov) continue;
-    if(search && (p.producto+p.proveedor).toLowerCase().indexOf(search)<0) continue;
-    items.push(p);
-  }
-  if(sort==="revenue") items.sort(function(a,b){return b.revenue-a.revenue});
-  else if(sort==="ebitda") items.sort(function(a,b){return b.ebitda_abs-a.ebitda_abs});
-  else if(sort==="margin") items.sort(function(a,b){return b.ebitda_pct-a.ebitda_pct});
-  else if(sort==="vol") items.sort(function(a,b){return b.vol-a.vol});
-  
-  var h = '<table><thead><tr><th>Proveedor</th><th>Producto</th><th style="text-align:right">Precio</th><th style="text-align:right">Costo</th><th style="text-align:right">CMG</th><th>CMG%</th><th style="text-align:right">EBITDA</th><th>EBITDA%</th><th style="text-align:right">Revenue</th><th>Vol</th><th>Status</th></tr></thead><tbody>';
-  for(var i=0;i<items.length;i++){
-    var p=items[i];
-    var color = p.ebitda_pct>0.1?'var(--gn)':p.ebitda_pct>0?'var(--or)':'var(--rd)';
-    var tag = p.ebitda>0?(p.ebitda_pct>0.1?'<span class="tag tag-ok">OK</span>':'<span class="tag tag-warn">!!</span>'):'<span class="tag tag-bad">X</span>';
-    h += '<tr><td style="font-size:10px;color:var(--t2)">'+p.proveedor+'</td><td style="font-weight:500">'+p.producto+'</td><td class="mono" style="text-align:right">'+fmtD(p.precio)+'</td><td class="mono" style="text-align:right">'+fmtD(Math.abs(p.ddp))+'</td><td class="mono" style="text-align:right;color:'+color+'">'+fmtD(p.cmg)+'</td><td class="mono" style="color:'+color+'">'+pct(p.cmg_pct)+'</td><td class="mono" style="text-align:right;color:'+color+'">'+fmtD(p.ebitda)+'</td><td class="mono" style="color:'+color+'">'+pct(p.ebitda_pct)+'</td><td class="mono" style="text-align:right">'+fmt(p.revenue)+'</td><td class="mono">'+fmt(p.vol)+'</td><td>'+tag+'</td></tr>';
-  }
-  h += '</tbody></table>';
-  document.getElementById("prod-table").innerHTML = h;
-}
-
-function renderAlertas(){
-  var costGtPrice=[], negMargin=[], zeroVol=[];
-  for(var i=0;i<D.products.length;i++){
-    var p=D.products[i];
-    if(Math.abs(p.ddp)>p.precio && p.vol>0) costGtPrice.push(p);
-    if(p.ebitda<0 && p.vol>0) negMargin.push(p);
-    if(p.vol===0) zeroVol.push(p);
-  }
-  negMargin.sort(function(a,b){return a.ebitda_abs-b.ebitda_abs});
-  var totalLoss = 0;
-  for(var i=0;i<negMargin.length;i++) totalLoss += negMargin[i].ebitda_abs;
-  
-  var h = '<div class="kpis" style="grid-template-columns:repeat(3,1fr)">';
-  h += '<div class="kpi" style="border-color:var(--rd)"><div class="lb">Costo > Precio</div><div class="vl neg">'+costGtPrice.length+'</div></div>';
-  h += '<div class="kpi" style="border-color:var(--or)"><div class="lb">EBITDA Negativo</div><div class="vl warn">'+negMargin.length+'</div></div>';
-  h += '<div class="kpi"><div class="lb">Sin Volumen</div><div class="vl">'+zeroVol.length+'</div></div></div>';
-  
-  if(costGtPrice.length){
-    h += '<div class="card full"><h3>COSTO DDP > PRECIO DE VENTA</h3><table><thead><tr><th>Producto</th><th>Proveedor</th><th style="text-align:right">Precio</th><th style="text-align:right">Costo</th><th style="text-align:right">Diferencia</th><th>Vol</th></tr></thead><tbody>';
-    for(var i=0;i<costGtPrice.length;i++){
-      var p=costGtPrice[i];
-      h += '<tr><td style="font-weight:500">'+p.producto+'</td><td style="color:var(--t2)">'+p.proveedor+'</td><td class="mono" style="text-align:right">'+fmtD(p.precio)+'</td><td class="mono neg" style="text-align:right">'+fmtD(Math.abs(p.ddp))+'</td><td class="mono neg" style="text-align:right">('+fmtD(Math.abs(p.ddp)-p.precio)+')</td><td class="mono">'+fmt(p.vol)+'</td></tr>';
-    }
-    h += '</tbody></table></div>';
-  }
-  
-  h += '<div class="card full"><h3>PRODUCTOS CON EBITDA NEGATIVO — Perdida: USD '+fmt(totalLoss)+'</h3><table><thead><tr><th>Producto</th><th>Proveedor</th><th style="text-align:right">Perdida/kg</th><th style="text-align:right">Perdida Total</th><th>Margen</th><th>Vol</th><th>Accion</th></tr></thead><tbody>';
-  for(var i=0;i<negMargin.length;i++){
-    var p=negMargin[i];
-    var action = Math.abs(p.ddp)>p.precio?'Subir precio o discontinuar':p.ebitda_pct>-0.1?'Revisar pricing':'Evaluar discontinuacion';
-    h += '<tr><td style="font-weight:500">'+p.producto+'</td><td style="color:var(--t2)">'+p.proveedor+'</td><td class="mono neg" style="text-align:right">'+fmtD(p.ebitda)+'</td><td class="mono neg" style="text-align:right">('+fmt(p.ebitda_abs)+')</td><td class="mono neg">'+pct(p.ebitda_pct)+'</td><td class="mono">'+fmt(p.vol)+'</td><td style="font-size:11px;color:var(--or)">'+action+'</td></tr>';
-  }
-  h += '</tbody></table></div>';
-  document.getElementById("content").innerHTML = h;
-}
-
-function renderSimulador(){
-  var top15=[];
-  var sorted = D.products.slice().sort(function(a,b){return b.revenue-a.revenue});
-  for(var i=0;i<sorted.length && top15.length<15;i++){
-    if(sorted[i].vol>0) top15.push(sorted[i]);
-  }
-  window._simProds = top15;
-  window._simPrices = [];
-  for(var i=0;i<top15.length;i++) window._simPrices.push(top15[i].precio);
-  
-  var h = '<div class="card full"><h3>Simulador de Pricing — Top 15 productos</h3><p style="color:var(--t2);font-size:12px;margin-bottom:16px">Ajuste el precio y vea como cambia el EBITDA total</p>';
-  h += '<div style="display:grid;grid-template-columns:180px 70px 1fr 70px 80px 70px;gap:6px;align-items:center;font-size:10px;color:var(--t2);padding-bottom:8px;border-bottom:1px solid var(--bd)"><div>Producto</div><div>Actual</div><div>Nuevo Precio</div><div>EBITDA/kg</div><div>EBITDA Total</div><div>Delta</div></div>';
-  for(var i=0;i<top15.length;i++){
-    var p=top15[i];
-    var mn=Math.max(0,Math.round(p.precio*50));
-    var mx=Math.round(p.precio*200);
-    h += '<div style="display:grid;grid-template-columns:180px 70px 1fr 70px 80px 70px;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--bd)">';
-    h += '<div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+p.producto+'</div>';
-    h += '<div class="mono">'+fmtD(p.precio)+'</div>';
-    h += '<div style="display:flex;align-items:center;gap:6px"><input type="range" min="'+mn+'" max="'+mx+'" value="'+Math.round(p.precio*100)+'" oninput="simUpd('+i+',this.value)" style="flex:1;height:4px;-webkit-appearance:none;background:var(--bd);border-radius:2px;outline:none;cursor:pointer"><span class="mono" id="sp'+i+'" style="min-width:45px">'+fmtD(p.precio)+'</span></div>';
-    h += '<div class="mono" id="se'+i+'">'+fmtD(p.ebitda)+'</div>';
-    h += '<div class="mono" id="st'+i+'">'+fmt(p.ebitda_abs)+'</div>';
-    h += '<div class="mono" id="sd'+i+'">0</div>';
-    h += '</div>';
-  }
-  h += '<div style="margin-top:16px;padding:16px;background:var(--s1);border-radius:8px;display:flex;justify-content:space-between;align-items:center">';
-  h += '<div><span style="color:var(--t2);font-size:12px">EBITDA Total Simulado:</span><span class="mono" style="font-size:18px;margin-left:12px" id="simTotalE">USD '+fmt(D.totals.ebitda)+'</span></div>';
-  h += '<div><span style="color:var(--t2);font-size:12px">Delta vs Actual:</span><span class="mono" style="font-size:18px;margin-left:12px" id="simTotalD">USD 0</span></div>';
-  h += '</div></div>';
-  document.getElementById("content").innerHTML = h;
-}
-
-function simUpd(i,val){
-  var p=window._simProds[i];
-  var np=val/100;
-  window._simPrices[i]=np;
-  document.getElementById("sp"+i).textContent=fmtD(np);
-  var ne=p.ebitda+(np-p.precio)*0.953;
-  var nt=ne*p.vol;
-  var delta=nt-p.ebitda_abs;
-  var el=document.getElementById("se"+i);el.textContent=fmtD(ne);el.style.color=ne>=0?"var(--gn)":"var(--rd)";
-  var tl=document.getElementById("st"+i);tl.textContent=fmt(nt);tl.style.color=nt>=0?"var(--gn)":"var(--rd)";
-  var dl=document.getElementById("sd"+i);dl.textContent=(delta>=0?"+":"")+fmt(delta);dl.style.color=delta>=0?"var(--gn)":"var(--rd)";
-  var totalDelta=0;
-  for(var j=0;j<window._simProds.length;j++){
-    var sp=window._simProds[j];
-    var snp=window._simPrices[j];
-    var sne=sp.ebitda+(snp-sp.precio)*0.953;
-    totalDelta+=(sne*sp.vol)-sp.ebitda_abs;
-  }
-  var newTotal=D.totals.ebitda+totalDelta;
-  var te=document.getElementById("simTotalE");te.textContent="USD "+(newTotal>=0?"":"-")+fmt(newTotal);te.style.color=newTotal>=0?"var(--gn)":"var(--rd)";
-  var td=document.getElementById("simTotalD");td.textContent="USD "+(totalDelta>=0?"+":"")+fmt(totalDelta);td.style.color=totalDelta>=0?"var(--gn)":"var(--rd)";
-}
-
-function renderUnitario(){
-  var h = '<div class="row"><div class="card" style="grid-column:1/-1"><h3>P&L Unitario — Waterfall USD/kg</h3>';
-  h += '<div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap">';
-  h += '<select id="u-prov" onchange="doFilterUnit()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:6px;border-radius:6px;font-size:12px"><option value="ALL">Todos</option>';
-  for(var i=0;i<D.proveedores.length;i++) h += '<option value="'+D.proveedores[i].nombre+'">'+D.proveedores[i].nombre+'</option>';
-  h += '</select>';
-  h += '<select id="u-status" onchange="doFilterUnit()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:6px;border-radius:6px;font-size:12px"><option value="ALL">Todos</option><option value="POS">Rentables</option><option value="NEG">Con perdida</option></select>';
-  h += '<input id="u-search" placeholder="Buscar..." oninput="doFilterUnit()" style="background:var(--s1);border:1px solid var(--bd);color:var(--tx);padding:6px;border-radius:6px;font-size:12px;flex:1">';
-  h += '</div><div id="u-table" style="max-height:calc(100vh - 360px);overflow-y:auto"></div></div></div>';
-  h += '<div class="row"><div class="card" id="u-detail"><h3>Detalle Unitario</h3><p style="color:var(--t2);font-size:12px">Click en un producto para ver el waterfall</p></div>';
-  
-  // Average cost distribution
-  var items = D.products.filter(function(p){return p.vol>0});
-  var avgP=0,avgM=0,tVol=0;
-  for(var i=0;i<items.length;i++){avgP+=items[i].precio*items[i].vol;avgM+=Math.abs(items[i].ddp)*items[i].vol;tVol+=items[i].vol}
-  avgP/=tVol;avgM/=tVol;
-  var avgCMG=avgP-avgM-0.2879-0.047-0.2;
-  var avgE=avgCMG-D.totals.gastos_fijos_kg;
-  
-  h += '<div class="card"><h3>Costos Promedio Ponderado</h3><div style="margin-top:8px">';
-  h += '<div class="sr"><span class="lb">Precio Venta</span><span class="vl">USD '+avgP.toFixed(2)+'</span></div>';
-  h += '<div class="sr"><span class="lb">(-) Costo MP</span><span class="vl neg">USD '+avgM.toFixed(2)+'</span></div>';
-  h += '<div class="sr"><span class="lb">(-) MOD+E+L</span><span class="vl" style="color:var(--t2)">USD 0.29</span></div>';
-  h += '<div class="sr"><span class="lb">(-) Imp+Flete</span><span class="vl" style="color:var(--t2)">USD 0.25</span></div>';
-  h += '<div style="border-top:1px solid var(--bd);margin:4px 0"></div>';
-  h += '<div class="sr"><span class="lb" style="font-weight:600">= CMG</span><span class="vl" style="color:'+(avgCMG>=0?'var(--gn)':'var(--rd)')+'">USD '+avgCMG.toFixed(2)+'</span></div>';
-  h += '<div class="sr"><span class="lb">(-) Gastos Fijos</span><span class="vl warn">USD '+D.totals.gastos_fijos_kg.toFixed(2)+'</span></div>';
-  h += '<div style="border-top:2px solid var(--bd);margin:4px 0"></div>';
-  h += '<div class="sr"><span class="lb" style="font-weight:700">= EBITDA</span><span class="vl" style="color:'+(avgE>=0?'var(--gn)':'var(--rd)')+';font-size:16px">USD '+avgE.toFixed(2)+'</span></div>';
-  h += '<div style="border-top:1px solid var(--bd);margin:4px 0"></div>';
-  var avgGF = Math.abs(D.totals.gastos_fin) / D.totals.vol;
-  var avgCF = Math.abs(D.totals.cf_inventario) / D.totals.vol;
-  h += '<div class="sr"><span class="lb">(-) Gastos Financieros</span><span class="vl neg">USD '+avgGF.toFixed(4)+'</span></div>';
-  h += '<div class="sr"><span class="lb">(-) CF Inventario</span><span class="vl neg">USD '+avgCF.toFixed(4)+'</span></div>';
-  h += '<div style="border-top:2px solid var(--pu);margin:4px 0"></div>';
-  var avgRN = D.totals.result_neto / D.totals.vol;
-  h += '<div class="sr"><span class="lb" style="font-weight:700">= Result. Neto</span><span class="vl" style="color:'+(avgRN>=0?'var(--gn)':'var(--rd)')+'">USD '+avgRN.toFixed(2)+'</span></div>';
-  h += '</div></div></div>';
-  document.getElementById("content").innerHTML = h;
-  doFilterUnit();
-}
-
-function doFilterUnit(){
-  var prov=document.getElementById("u-prov").value;
-  var status=document.getElementById("u-status").value;
-  var search=document.getElementById("u-search").value.toLowerCase();
-  var items=[];
-  for(var i=0;i<D.products.length;i++){
-    var p=D.products[i];
-    if(p.vol<=0)continue;
-    if(prov!=="ALL"&&p.proveedor!==prov)continue;
-    if(status==="POS"&&p.ebitda<=0)continue;
-    if(status==="NEG"&&p.ebitda>0)continue;
-    if(search&&(p.producto+p.proveedor).toLowerCase().indexOf(search)<0)continue;
-    items.push(p);
-  }
-  items.sort(function(a,b){return b.revenue-a.revenue});
-  var maxP=0;for(var i=0;i<items.length;i++)if(items[i].precio>maxP)maxP=items[i].precio;
-  
-  var h='<table><thead><tr><th>Proveedor</th><th>Producto</th><th style="text-align:right">Precio</th><th style="text-align:right">MP</th><th style="text-align:right">MOD</th><th style="text-align:right">Imp+Fl</th><th style="text-align:right">CMG</th><th>CMG%</th><th style="text-align:right">GF</th><th style="text-align:right">EBITDA</th><th>%</th><th>Waterfall</th></tr></thead><tbody>';
-  for(var i=0;i<items.length;i++){
-    var p=items[i];
-    var mp=Math.abs(p.ddp);
-    var gf=D.totals.gastos_fijos_kg;
-    var bw=maxP>0?100:0;
-    var mpW=mp/maxP*bw;var modW=0.2879/maxP*bw;var impW=0.247/maxP*bw;var gfW=gf/maxP*bw;
-    var eW=p.ebitda>0?p.ebitda/maxP*bw:0;
-    var lW=p.ebitda<0?Math.min(Math.abs(p.ebitda)/maxP*bw,15):0;
-    var ec=p.ebitda_pct>0.1?'var(--gn)':p.ebitda_pct>0?'var(--or)':'var(--rd)';
-    h+='<tr style="cursor:pointer" onclick="showUnitDetail('+i+')">';
-    h+='<td style="font-size:10px;color:var(--t2)">'+p.proveedor+'</td>';
-    h+='<td style="font-weight:500">'+p.producto+'</td>';
-    h+='<td class="mono" style="text-align:right">'+fmtD(p.precio)+'</td>';
-    h+='<td class="mono neg" style="text-align:right">'+fmtD(mp)+'</td>';
-    h+='<td class="mono" style="text-align:right;color:var(--t2)">0.29</td>';
-    h+='<td class="mono" style="text-align:right;color:var(--t2)">0.25</td>';
-    h+='<td class="mono" style="text-align:right;color:'+ec+'">'+fmtD(p.cmg)+'</td>';
-    h+='<td class="mono" style="color:'+ec+'">'+(p.cmg_pct*100).toFixed(1)+'%</td>';
-    h+='<td class="mono" style="text-align:right;color:var(--or)">'+fmtD(gf)+'</td>';
-    h+='<td class="mono" style="text-align:right;color:'+ec+'">'+fmtD(p.ebitda)+'</td>';
-    h+='<td class="mono" style="color:'+ec+'">'+(p.ebitda_pct*100).toFixed(1)+'%</td>';
-    h+='<td><div style="display:flex;height:10px;border-radius:2px;overflow:hidden;width:'+bw+'px;background:var(--bd)">';
-    h+='<div style="width:'+mpW+'px;background:var(--rd);opacity:.7"></div>';
-    h+='<div style="width:'+modW+'px;background:var(--or);opacity:.7"></div>';
-    h+='<div style="width:'+impW+'px;background:var(--pu);opacity:.5"></div>';
-    h+='<div style="width:'+gfW+'px;background:var(--t2);opacity:.5"></div>';
-    if(p.ebitda>0)h+='<div style="width:'+eW+'px;background:var(--gn)"></div>';
-    else h+='<div style="width:'+lW+'px;background:var(--rd);opacity:.3"></div>';
-    h+='</div></td></tr>';
-  }
-  h+='</tbody></table>';
-  document.getElementById("u-table").innerHTML=h;
-  window._unitItems=items;
-}
-
-function showUnitDetail(idx){
-  var p=window._unitItems[idx];
-  var mp=Math.abs(p.ddp);
-  var gf=D.totals.gastos_fijos_kg;
-  var h='<h3>'+p.producto+'</h3><div style="margin-top:10px">';
-  h+='<div class="sr" style="padding:6px 0"><span class="lb" style="font-size:13px">Precio de Venta</span><span class="vl" style="font-size:15px">USD '+fmtD(p.precio)+' /kg</span></div>';
-  h+='<div class="sr" style="padding:3px 0;padding-left:12px"><span class="lb">(-) Materia Prima DDP</span><span class="vl neg">USD '+fmtD(mp)+'</span></div>';
-  h+='<div class="sr" style="padding:3px 0;padding-left:12px"><span class="lb">(-) MOD + Energia</span><span class="vl" style="color:var(--t2)">USD 0.29</span></div>';
-  h+='<div class="sr" style="padding:3px 0;padding-left:12px"><span class="lb">(-) Impuestos</span><span class="vl" style="color:var(--t2)">USD 0.047</span></div>';
-  h+='<div class="sr" style="padding:3px 0;padding-left:12px"><span class="lb">(-) Flete</span><span class="vl" style="color:var(--t2)">USD 0.20</span></div>';
-  h+='<div style="border-top:2px solid var(--bd);margin:6px 0"></div>';
-  h+='<div class="sr" style="padding:6px 0"><span class="lb" style="font-weight:700">= CMG</span><span class="vl" style="color:'+(p.cmg>=0?'var(--gn)':'var(--rd)')+';font-size:15px">USD '+fmtD(p.cmg)+' /kg</span></div>';
-  h+='<div class="sr" style="padding:3px 0;padding-left:12px"><span class="lb">(-) Gastos Fijos</span><span class="vl warn">USD '+fmtD(gf)+'</span></div>';
-  h+='<div style="border-top:3px solid var(--ac);margin:6px 0"></div>';
-  h+='<div class="sr" style="padding:6px 0"><span class="lb" style="font-weight:700;font-size:14px">= EBITDA</span><span class="vl" style="color:'+(p.ebitda>=0?'var(--gn)':'var(--rd)')+';font-size:18px">USD '+fmtD(p.ebitda)+' /kg</span></div>';
-  h+='<div style="border-top:1px solid var(--bd);margin:6px 0"></div>';
-  h+='<div class="sr"><span class="lb">Volumen anual</span><span class="vl">'+fmt(p.vol)+' kg</span></div>';
-  h+='<div class="sr"><span class="lb">EBITDA anual</span><span class="vl" style="color:'+(p.ebitda_abs>=0?'var(--gn)':'var(--rd)')+'">USD '+fmt(p.ebitda_abs)+'</span></div>';
-  h+='<div style="border-top:1px solid var(--bd);margin:6px 0"></div>';
-  h+='<div class="sr" style="padding:3px 0;padding-left:12px"><span class="lb">(-) Gastos Financieros</span><span class="vl" style="color:var(--rd)">USD '+fmtD(Math.abs(p.gastos_fin))+'</span></div>';
-  if(p.cf_inventario!=0){
-    h+='<div class="sr" style="padding:3px 0;padding-left:12px"><span class="lb">(-) CF Inventario</span><span class="vl" style="color:var(--rd)">USD '+fmtD(Math.abs(p.cf_inventario))+'</span></div>';
-  }
-  h+='<div style="border-top:2px solid var(--pu);margin:6px 0"></div>';
-  var rn = p.result_neto || (p.ebitda + p.gastos_fin + p.cf_inventario);
-  h+='<div class="sr" style="padding:6px 0"><span class="lb" style="font-weight:700;font-size:13px">= Resultado Neto</span><span class="vl" style="color:'+(rn>=0?'var(--gn)':'var(--rd)')+';font-size:16px">USD '+fmtD(rn)+' /kg</span></div>';
-  if(p.ebitda<0){
-    h+='<div style="margin-top:8px;padding:8px;background:rgba(255,77,106,.1);border-radius:6px;font-size:11px;color:var(--rd)">Para breakeven: USD '+fmtD(p.precio-p.ebitda)+'/kg (+'+fmtD(Math.abs(p.ebitda))+')</div>';
-  }
+function renderSB(){
+  var bo={};var top=[];
+  for(var i=0;i<S.length;i++){var s=S[i];var c=ci(s);var o=s.o||"N/A";if(!bo[o])bo[o]={su:0,cf:0,n:0};bo[o].su+=c.su;bo[o].cf+=c.cfa;bo[o].n++;if(c.cfa>0)top.push({p:s.p,cf:c.cfa,ck:c.cfs});}
+  top.sort(function(a,b){return b.cf-a.cf});
+  var h='<h3>Resumen</h3>';
+  h+='<div class="card"><h4>Por Origen</h4>';
+  var ks=Object.keys(bo).sort(function(a,b){return bo[b].su-bo[a].su});
+  for(var i=0;i<ks.length;i++){var k=ks[i];var d=bo[k];h+='<div class="sr"><span class="lb">'+k+' ('+d.n+')</span><span class="vl" style="color:var(--or)">USD '+fmt(d.su)+'</span></div>';}
   h+='</div>';
-  document.getElementById("u-detail").innerHTML=h;
+  h+='<div class="card"><h4>Top Costo Financiero</h4>';
+  for(var i=0;i<Math.min(top.length,8);i++){var p=top[i];h+='<div class="sr"><span class="lb" style="font-size:11px">'+p.p.substring(0,22)+'</span><span class="vl" style="color:var(--rd);font-size:11px">'+fmt(p.cf)+' ('+fd(p.ck)+'/kg)</span></div>';}
+  h+='</div>';
+  h+='<div class="card"><h4>Formulas</h4><div style="font-size:10px;color:var(--t2);line-height:1.6">Stock Std = LT + SS<br>Stock kg = (Vol/365) x Std<br>Stock USD = kg x |DDP|<br>CF Diario = (Stock USD x TNA) / (Vol x 365)<br>CF/kg = Diario x Std dias<br>CF Anual = CF/kg x Vol</div></div>';
+  h+='<button class="btn-sm" style="width:100%;margin-top:12px;padding:10px;background:var(--ac);color:#fff;border:none;font-weight:600" onclick="exportCSV()">Export CSV</button>';
+  document.getElementById("sb").innerHTML=h;
 }
 
-// INIT
-renderTabs();
-renderContent();
+function exportCSV(){
+  var csv="Producto,Origen,Vol Anual,Lead Time,Stock Seg,Std Dias,Stock Kg,DDP,Stock USD,TNA,CF/kg,% DDP,CF Anual\n";
+  for(var i=0;i<S.length;i++){var s=S[i];var c=ci(s);csv+='"'+s.p+'","'+s.o+'",'+s.v+','+s.lt+','+s.ss+','+c.sd+','+c.sk.toFixed(1)+','+Math.abs(s.d).toFixed(2)+','+c.su.toFixed(0)+','+(gTNA()*100).toFixed(1)+','+c.cfs.toFixed(4)+','+(c.cfp*100).toFixed(1)+','+c.cfa.toFixed(0)+"\n";}
+  var b=new Blob([csv],{type:"text/csv"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="inventario_cf_"+new Date().toISOString().slice(0,10)+".csv";a.click();
+}
+
+renderAll();
 </script>
 </body>
 </html>
